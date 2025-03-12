@@ -6,7 +6,7 @@
 #define MESH_GENERATOR_H
 
 #include "block.h"
-
+#include "chunk.h"
 #include "texture_manager.h"
 
 namespace renderer {
@@ -16,11 +16,31 @@ namespace renderer {
         int num_indices;
     };
 
+    struct ChunkMesh {
+        unsigned int VBO, VAO, EBO;
+        glm::vec3 position;
+        int num_indices;
+    };
+
+    enum class Direction {
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT,
+        FRONT,
+        BACK,
+    };
+
     std::vector<float> create_block_vertex_buffer(const AtlasTextureCoordinates &coords);
 
     BlockMesh create_block_mesh(const Block &block);
 
-    BlockMesh delete_block_mesh(BlockMesh &block);
+    ChunkMesh create_chunk_mesh(const Chunk& chunk);
+
+    static void add_face(std::vector<float> &vertex_buffer, std::vector<uint32_t> &index_buffer, Direction direction,
+                        Block block, glm::vec3 block_position);
+
+    static std::vector<float> get_face_vertices(Direction direction, const AtlasTextureCoordinates &coords);
 };
 
 

@@ -8,9 +8,9 @@
 #include "block.h"
 #include "shader.h"
 #include "renderer.h"
+#include "chunk.h"
 
-
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 0.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
@@ -87,17 +87,21 @@ void processInput(GLFWwindow *window) {
         cameraPos -= cameraSpeed * glm::vec3(0, 1.0, 0);
 }
 
-std::vector<renderer::BlockMesh> create_chunk(int length, int width) {
-    std::vector<renderer::BlockMesh> chunk;
+renderer::ChunkMesh create_chunk(int length, int width) {
+    Chunk chunk(0.0f, 0.0f, 0.0f);
 
-    for (int i = 0; i < length; i++) {
-        for (int j = 0; j < width; j++) {
-            auto block = create_block(glm::vec3(i, 0, -j));
-            chunk.push_back(renderer::create_block_mesh(block));
+    for (int i = 0; i < 16; i++) {
+        for (int j = 0; j < 7; j++) {
+            for (int k = 0; k < 7; k++) {
+                 auto block = create_block(renderer::TextureType::STONE);
+                chunk.set_block(i , k, j, block);
+            }
+
         }
     }
 
-    return chunk;
+    renderer::ChunkMesh chunk_mesh = renderer::create_chunk_mesh(chunk);
+    return chunk_mesh;
 }
 
 int main() {
@@ -122,13 +126,11 @@ int main() {
     renderer::Renderer renderer(g_width, g_height);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    Block block1 = create_block(glm::vec3(0, 0, 0));
-
-    // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, mouse_callback);
 
-    std::vector<renderer::BlockMesh> chunk = create_chunk(16, 16);
-    // renderer.enable_wireframe();
+    renderer::ChunkMesh chunk_mesh = create_chunk(16, 16);
+    renderer.enable_wireframe();
 
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = glfwGetTime();
@@ -143,9 +145,11 @@ int main() {
 
         glm::mat4 view = glm::lookAt(cameraPos, cameraFront + cameraPos, cameraUp);
 
-        for (auto &block: chunk) {
-            renderer.render_block(block, view);
-        }
+        //for (auto &block: chunk) {
+        //    renderer.render_block(block, view);
+        //}
+
+        renderer.render_chunk(chunk_mesh, view);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

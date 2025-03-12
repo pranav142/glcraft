@@ -22,6 +22,8 @@ add_executable(minecraft
         mesh_generator.h
         texture_manager.cpp
         texture_manager.h
+        chunk.cpp
+        chunk.h
 )
 
 target_link_libraries(minecraft PUBLIC glfw)
