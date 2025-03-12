@@ -14,6 +14,14 @@ add_executable(minecraft
         utils.h
         shader.cpp
         shader.h
+        block.cpp
+        block.h
+        renderer.cpp
+        renderer.h
+        mesh_generator.cpp
+        mesh_generator.h
+        texture_manager.cpp
+        texture_manager.h
 )
 
 target_link_libraries(minecraft PUBLIC glfw)
@@ -21,16 +29,14 @@ target_link_libraries(minecraft PUBLIC glfw)
 target_include_directories(minecraft PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/libs/glad/include
         ${CMAKE_CURRENT_SOURCE_DIR}/libs/stb
+        ${CMAKE_CURRENT_SOURCE_DIR}/libs/glm
 )
 
-add_custom_command(TARGET minecraft PRE_BUILD
+add_custom_target(copy_resources ALL
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/shaders ${CMAKE_BINARY_DIR}/shaders
-        COMMENT "Copying shaders before running minecraft..."
-)
-
-add_custom_command(TARGET minecraft PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets
-        COMMENT "Copying assets before running minecraft..."
+        COMMENT "Copying resources for minecraft..."
+        DEPENDS minecraft
 )

@@ -7,6 +7,7 @@
 
 #include "utils.h"
 #include <string>
+#include <glm/glm.hpp>
 
 namespace renderer {
     class Shader {
@@ -23,6 +24,7 @@ namespace renderer {
 
         void set_float(const std::string &name, float value) const;
 
+        void set_matrix(const std::string &name, const glm::mat4& matrix) const;
     private:
         [[nodiscard]] std::optional<unsigned int> compile_vertex_shader(const std::string &vertex_path);
 

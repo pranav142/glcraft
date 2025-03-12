@@ -6,6 +6,7 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/gtc/type_ptr.hpp>
 
 renderer::Shader::Shader(const std::string &vertex_path, const std::string &fragment_path) {
     std::optional<unsigned int> vertex_shader = compile_vertex_shader(vertex_path);
@@ -49,6 +50,9 @@ void renderer::Shader::set_float(const std::string &name, float value) const {
     glUniform1f(glGetUniformLocation(m_id, name.c_str()), value);
 }
 
+void renderer::Shader::set_matrix(const std::string &name, const glm::mat4 &matrix) const {
+    glUniformMatrix4fv(glGetUniformLocation(m_id, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
+}
 
 std::optional<unsigned int> renderer::Shader::compile_vertex_shader(const std::string &vertex_path) {
     int success;
