@@ -19,16 +19,18 @@ void renderer::Renderer::resize(int width, int height) {
 void renderer::Renderer::begin_frame() {
     glEnable(GL_DEPTH_TEST);
 
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glFrontFace(GL_CCW);
-
     glClearColor(0.2f, 0.3f, 0.8f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void renderer::Renderer::enable_wireframe() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+}
+
+void renderer::Renderer::enable_culling() {
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
 }
 
 void renderer::Renderer::render_block(const BlockMesh &block_mesh, const glm::mat4 &view_matrix) const {

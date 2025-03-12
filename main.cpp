@@ -131,6 +131,7 @@ int main() {
 
     renderer::ChunkMesh chunk_mesh = create_chunk(16, 16);
     renderer.enable_wireframe();
+    renderer.enable_culling();
 
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = glfwGetTime();

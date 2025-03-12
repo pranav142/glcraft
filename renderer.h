@@ -26,6 +26,8 @@ namespace renderer {
 
         void enable_wireframe();
 
+        void enable_culling();
+
         void render_block(const renderer::BlockMesh &block_mesh, const glm::mat4 &view_mat) const;
 
         void render_chunk(const renderer::ChunkMesh &chunk_mesh, const glm::mat4 &view_mat) const;
