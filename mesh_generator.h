@@ -10,12 +10,6 @@
 #include "texture_manager.h"
 
 namespace renderer {
-    struct BlockMesh {
-        unsigned int VBO, VAO, EBO;
-        glm::vec3 position;
-        int num_indices;
-    };
-
     struct ChunkMesh {
         unsigned int VBO, VAO, EBO;
         glm::vec3 position;
@@ -30,10 +24,6 @@ namespace renderer {
         FRONT,
         BACK,
     };
-
-    std::vector<float> create_block_vertex_buffer(const AtlasTextureCoordinates &coords);
-
-    BlockMesh create_block_mesh(const Block &block);
 
     ChunkMesh create_chunk_mesh(const Chunk& chunk);
 

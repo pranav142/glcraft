@@ -9,24 +9,27 @@
 
 #include "block.h"
 
-static constexpr int CHUNK_HEIGHT = 16;
-static constexpr int CHUNK_WIDTH = 16;
-static constexpr int CHUNK_LENGTH = 16;
+constexpr int CHUNK_HEIGHT = 16;
+constexpr int CHUNK_WIDTH = 16;
+constexpr int CHUNK_LENGTH = 16;
 
 class Chunk {
 public:
+    // these are global coordinates
     Chunk(float x, float y, float z) : m_position(glm::vec3(x, y, z)) {
     }
 
     // x, y, z relative to chunk
-    const Block &get_block(int x, int y, int z) const;
+    [[nodiscard]] const Block &get_block(int x, int y, int z) const;
 
     void set_block(int x, int y, int z, const Block &block);
 
-    [[nodiscard]]  glm::vec3 position() const;
+    [[nodiscard]] glm::vec3 position() const;
 
 private:
     [[nodiscard]] int calculate_index(int x, int y, int z) const;
+
+    [[nodiscard]] bool coordinate_in_bounds(int x, int y, int z) const;
 
 private:
     glm::vec3 m_position = glm::vec3(0, 0, 0);

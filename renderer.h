@@ -12,9 +12,6 @@
 
 #include "texture_manager.h"
 
-// mesh generator
-// takes in some data and makes a mesh from it
-
 namespace renderer {
     class Renderer {
     public:
@@ -28,9 +25,7 @@ namespace renderer {
 
         void enable_culling();
 
-        void render_block(const renderer::BlockMesh &block_mesh, const glm::mat4 &view_mat) const;
-
-        void render_chunk(const renderer::ChunkMesh &chunk_mesh, const glm::mat4 &view_mat) const;
+        void render_chunk(const ChunkMesh &chunk_mesh, const glm::mat4 &view_mat) const;
 
     private:
         void update_projection_matrix(int width, int height);

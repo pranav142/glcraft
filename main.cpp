@@ -67,7 +67,7 @@ void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    float cameraSpeed = 2.5f * deltaTime;
+    float cameraSpeed = 30.0f * deltaTime;
 
     auto front_dir = glm::vec3(cameraFront.x, 0.0f, cameraFront.z);
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -87,16 +87,13 @@ void processInput(GLFWwindow *window) {
         cameraPos -= cameraSpeed * glm::vec3(0, 1.0, 0);
 }
 
-renderer::ChunkMesh create_chunk(int length, int width) {
-    Chunk chunk(0.0f, 0.0f, 0.0f);
-
-    for (int i = 0; i < 16; i++) {
-        for (int j = 0; j < 7; j++) {
-            for (int k = 0; k < 7; k++) {
-                 auto block = create_block(renderer::TextureType::STONE);
-                chunk.set_block(i , k, j, block);
+renderer::ChunkMesh create_stone_chunk(int length, int width, int height, Chunk &chunk) {
+    for (int i = 0; i < length; i++) {
+        for (int j = 0; j < width; j++) {
+            for (int k = 0; k < height; k++) {
+                auto block = create_block(renderer::TextureType::STONE);
+                chunk.set_block(i, k, j, block);
             }
-
         }
     }
 
@@ -129,13 +126,23 @@ int main() {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, mouse_callback);
 
-    renderer::ChunkMesh chunk_mesh = create_chunk(16, 16);
-    renderer.enable_wireframe();
+    // renderer.enable_wireframe();
     renderer.enable_culling();
+
+    std::vector<renderer::ChunkMesh> chunk_meshes;
+
+    for (int i = -6; i <=  6; i++) {
+        for (int j = -6; j < 6; j++) {
+            Chunk chunk(16 * i, -17, 16 * j);
+            create_stone_chunk(16, 16, 16, chunk);
+            chunk_meshes.push_back(renderer::create_chunk_mesh(chunk));
+        }
+    }
 
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
+        std::cout << 1/deltaTime << std::endl;
         lastFrame = currentFrame;
         // TODO: only need to resize on changes
         renderer.resize(g_width, g_height);
@@ -146,14 +153,13 @@ int main() {
 
         glm::mat4 view = glm::lookAt(cameraPos, cameraFront + cameraPos, cameraUp);
 
-        //for (auto &block: chunk) {
-        //    renderer.render_block(block, view);
-        //}
-
-        renderer.render_chunk(chunk_mesh, view);
+        for (auto &chunk_mesh: chunk_meshes) {
+            renderer.render_chunk(chunk_mesh, view);
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+
     }
 
 
