@@ -26,6 +26,8 @@ add_executable(minecraft
         chunk.h
         chunk_generator.cpp
         chunk_generator.h
+        block_registry.cpp
+        block_registry.h
 )
 
 target_link_libraries(minecraft PUBLIC glfw)

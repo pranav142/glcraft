@@ -6,6 +6,7 @@
 #include <glm/ext.hpp>
 
 #include "block.h"
+#include "block_registry.h"
 #include "shader.h"
 #include "renderer.h"
 #include "chunk.h"
@@ -91,8 +92,13 @@ renderer::ChunkMesh create_stone_chunk(int length, int width, int height, Chunk 
     for (int i = 0; i < length; i++) {
         for (int j = 0; j < width; j++) {
             for (int k = 0; k < height; k++) {
-                auto block = create_block(renderer::TextureType::STONE);
-                chunk.set_block(i, k, j, block);
+                if (k == height - 1) {
+                    auto block = create_block(BlockTypeID::GRASS);
+                    chunk.set_block(i, k, j, block);
+                } else {
+                    auto block = create_block(BlockTypeID::DIRT);
+                    chunk.set_block(i, k, j, block);
+                }
             }
         }
     }
@@ -102,6 +108,7 @@ renderer::ChunkMesh create_stone_chunk(int length, int width, int height, Chunk 
 }
 
 int main() {
+    BlockRegistry();
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -126,13 +133,13 @@ int main() {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, mouse_callback);
 
-    // renderer.enable_wireframe();
+    renderer.enable_wireframe();
     renderer.enable_culling();
 
     std::vector<renderer::ChunkMesh> chunk_meshes;
 
-    for (int i = -6; i <=  6; i++) {
-        for (int j = -6; j < 6; j++) {
+    for (int i = -8; i <= 8; i++) {
+        for (int j = -8; j <= 8; j++) {
             Chunk chunk(16 * i, -17, 16 * j);
             create_stone_chunk(16, 16, 16, chunk);
             chunk_meshes.push_back(renderer::create_chunk_mesh(chunk));
@@ -142,7 +149,7 @@ int main() {
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
-        std::cout << 1/deltaTime << std::endl;
+        std::cout << 1 / deltaTime << std::endl;
         lastFrame = currentFrame;
         // TODO: only need to resize on changes
         renderer.resize(g_width, g_height);
@@ -159,7 +166,6 @@ int main() {
 
         glfwSwapBuffers(window);
         glfwPollEvents();
-
     }
 
 

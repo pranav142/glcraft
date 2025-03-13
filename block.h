@@ -9,12 +9,28 @@
 
 #include "texture_manager.h"
 
-struct Block {
-    renderer::TextureType type = renderer::TextureType::DIRT;
-    // glm::vec3 position;
+enum class BlockTypeID : uint16_t {
+    GRASS = 0,
+    STONE = 1,
+    DIRT = 2,
+    EMPTY = 3,
+    COUNT
 };
 
+struct Block {
+    BlockTypeID type;
+};
 
-Block create_block(renderer::TextureType type);
+// Stores Textures Of All Sides
+struct BlockTextures {
+    renderer::AtlasTextureCoordinates top, bottom, left, right, front, back;
+};
+
+class BlockType {
+public:
+    BlockTextures textures;
+};
+
+Block create_block(BlockTypeID);
 
 #endif //BLOCK_H

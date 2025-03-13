@@ -4,6 +4,6 @@
 
 #include "block.h"
 
-Block create_block(renderer::TextureType type) {
+Block create_block(BlockTypeID type) {
     return Block(type);
 }
