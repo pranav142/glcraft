@@ -28,6 +28,8 @@ add_executable(minecraft
         chunk_generator.h
         block_registry.cpp
         block_registry.h
+        camera.cpp
+        camera.h
 )
 
 target_link_libraries(minecraft PUBLIC glfw)
