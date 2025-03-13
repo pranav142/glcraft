@@ -4,10 +4,13 @@
 
 #include "chunk.h"
 
+#include "mesh_generator.h"
+
 
 const Block& Chunk::get_block(int x, int y, int z) const {
     int index = calculate_index(x, y, z);
     if (index > blocks.size() || !coordinate_in_bounds(x, y, z)) {
+        return renderer::empty_block;
     }
     return blocks[calculate_index(x, y, z)];
 }

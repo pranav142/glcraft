@@ -5,8 +5,10 @@
 #include "mesh_generator.h"
 
 #include <iostream>
+#include <bits/ranges_algobase.h>
 #include <glad/glad.h>
 #include "texture_manager.h"
+
 
 renderer::ChunkMesh renderer::create_chunk_mesh(const Chunk &chunk) {
     unsigned int VAO, VBO, EBO;
@@ -19,74 +21,7 @@ renderer::ChunkMesh renderer::create_chunk_mesh(const Chunk &chunk) {
     vertex_buffer.reserve(3600);
     index_buffer.reserve(1500);
 
-    // TODO: Clean This Up
-    for (int i = 0; i < CHUNK_WIDTH; i++) {
-        for (int j = 0; j < CHUNK_HEIGHT; j++) {
-            for (int k = 0; k < CHUNK_LENGTH; k++) {
-                auto block = chunk.get_block(i, j, k);
-                if (block.type == renderer::TextureType::DIRT) {
-                    continue;
-                }
-
-                glm::vec3 block_position = glm::vec3(i, j, k) + chunk.position();
-                if (j + 1 <= 15) {
-                    auto top_block = chunk.get_block(i, j + 1, k);
-                    if (top_block.type == renderer::TextureType::DIRT) {
-                        add_face(vertex_buffer, index_buffer, Direction::UP, block, block_position);
-                    }
-                } else {
-                    add_face(vertex_buffer, index_buffer, Direction::UP, block, block_position);
-                }
-
-                if (j - 1 >= 0) {
-                    auto top_block = chunk.get_block(i, j - 1, k);
-                    if (top_block.type == renderer::TextureType::DIRT) {
-                        add_face(vertex_buffer, index_buffer, Direction::DOWN, block, block_position);
-                    }
-                } else {
-                    add_face(vertex_buffer, index_buffer, Direction::DOWN, block, block_position);
-                }
-
-
-                if (i + 1 <= 15) {
-                    auto top_block = chunk.get_block(i + 1, j, k);
-                    if (top_block.type == renderer::TextureType::DIRT) {
-                        add_face(vertex_buffer, index_buffer, Direction::RIGHT, block, block_position);
-                    }
-                } else {
-                    add_face(vertex_buffer, index_buffer, Direction::RIGHT, block, block_position);
-                }
-
-                if (i - 1 >= 0) {
-                    auto top_block = chunk.get_block(i - 1, j, k);
-                    if (top_block.type == renderer::TextureType::DIRT) {
-                        add_face(vertex_buffer, index_buffer, Direction::LEFT, block, block_position);
-                    }
-                } else {
-                    add_face(vertex_buffer, index_buffer, Direction::LEFT, block, block_position);
-                }
-
-
-                if (k + 1 <= 15) {
-                    auto top_block = chunk.get_block(i, j, k + 1);
-                    if (top_block.type == renderer::TextureType::DIRT) {
-                        add_face(vertex_buffer, index_buffer, Direction::FRONT, block, block_position);
-                    }
-                } else {
-                    add_face(vertex_buffer, index_buffer, Direction::FRONT, block, block_position);
-                }
-
-                if (k - 1 >= 0) {
-                    auto top_block = chunk.get_block(i, j, k - 1);
-                    if (top_block.type == renderer::TextureType::DIRT) {
-                        add_face(vertex_buffer, index_buffer, Direction::BACK, block, block_position);
-                    }
-                } else {
-                    add_face(vertex_buffer, index_buffer, Direction::BACK, block, block_position);
-                }
-            }
-        }
-    }
+    fill_chunk_vertex_and_index_buffer(vertex_buffer, index_buffer, chunk);
 
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -121,6 +56,7 @@ void renderer::add_face(std::vector<float> &vertex_buffer, std::vector<uint32_t>
     }
 
     int vertex_count = vertex_buffer.size() / 5;
+
     for (int i = 0; i < 4; i++) {
         vertex_buffer.push_back(block_position.x + vertices[3 * i]);
         vertex_buffer.push_back(block_position.y + vertices[3 * i + 1]);
@@ -156,7 +92,6 @@ std::vector<float> renderer::get_face_vertices(Direction direction, const AtlasT
             };
         case Direction::LEFT:
             return std::vector<float>{
-                // Left face
                 -0.5f, -0.5f, -0.5f,
                 -0.5f, -0.5f, 0.5f,
                 -0.5f, 0.5f, 0.5f,
@@ -185,5 +120,54 @@ std::vector<float> renderer::get_face_vertices(Direction direction, const AtlasT
             };
         default:
             return std::vector<float>{};
+    }
+}
+
+void renderer::fill_chunk_vertex_and_index_buffer(std::vector<float> &vertex_buffer,
+                                                  std::vector<uint32_t> &index_buffer, const Chunk &chunk) {
+    // Checks Adjacent Blocks and only
+    // adds vertices that are not covered
+    // by another block
+    for (int i = 0; i < CHUNK_WIDTH; i++) {
+        for (int j = 0; j < CHUNK_HEIGHT; j++) {
+            for (int k = 0; k < CHUNK_LENGTH; k++) {
+                auto block = chunk.get_block(i, j, k);
+                if (block.type == renderer::TextureType::DIRT) {
+                    continue;
+                }
+
+                glm::vec3 block_position = glm::vec3(i, j, k) + chunk.position();
+
+                auto top_block = chunk.get_block(i, j + 1, k);
+                if (top_block.type == TextureType::DIRT) {
+                    add_face(vertex_buffer, index_buffer, Direction::UP, block, block_position);
+                }
+
+                auto bottom_block = chunk.get_block(i, j - 1, k);
+                if (bottom_block.type == TextureType::DIRT) {
+                    add_face(vertex_buffer, index_buffer, Direction::DOWN, block, block_position);
+                }
+
+                auto right_block = chunk.get_block(i + 1, j, k);
+                if (right_block.type == TextureType::DIRT) {
+                    add_face(vertex_buffer, index_buffer, Direction::RIGHT, block, block_position);
+                }
+
+                auto left_block = chunk.get_block(i - 1, j, k);
+                if (left_block.type == TextureType::DIRT) {
+                    add_face(vertex_buffer, index_buffer, Direction::LEFT, block, block_position);
+                }
+
+                auto front_block = chunk.get_block(i, j, k + 1);
+                if (front_block.type == TextureType::DIRT) {
+                    add_face(vertex_buffer, index_buffer, Direction::FRONT, block, block_position);
+                }
+
+                auto back_block = chunk.get_block(i, j, k - 1);
+                if (back_block.type == TextureType::DIRT) {
+                    add_face(vertex_buffer, index_buffer, Direction::BACK, block, block_position);
+                }
+            }
+        }
     }
 }

@@ -16,6 +16,8 @@ namespace renderer {
         int num_indices;
     };
 
+    static Block empty_block = Block(TextureType::DIRT);
+
     enum class Direction {
         UP,
         DOWN,
@@ -31,6 +33,8 @@ namespace renderer {
                         Block block, glm::vec3 block_position);
 
     static std::vector<float> get_face_vertices(Direction direction, const AtlasTextureCoordinates &coords);
+
+    static void fill_chunk_vertex_and_index_buffer(std::vector<float> &vertex_buffer, std::vector<uint32_t> &index_buffer, const Chunk& chunk);
 };
 
 
