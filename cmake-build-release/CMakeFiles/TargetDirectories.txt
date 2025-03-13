@@ -1,4 +1,0 @@
-/home/pknadimp/minecraft/cmake-build-release/CMakeFiles/minecraft.dir
-/home/pknadimp/minecraft/cmake-build-release/CMakeFiles/copy_resources.dir
-/home/pknadimp/minecraft/cmake-build-release/CMakeFiles/edit_cache.dir
-/home/pknadimp/minecraft/cmake-build-release/CMakeFiles/rebuild_cache.dir
