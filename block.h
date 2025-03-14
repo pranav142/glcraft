@@ -18,7 +18,7 @@ enum class BlockTypeID : uint16_t {
 };
 
 struct Block {
-    BlockTypeID type;
+    BlockTypeID type = BlockTypeID::EMPTY;
 };
 
 // Stores Textures Of All Sides

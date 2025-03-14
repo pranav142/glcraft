@@ -5,14 +5,13 @@
 #include "mesh_generator.h"
 
 #include <iostream>
-#include <bits/ranges_algobase.h>
 #include <glad/glad.h>
 
 #include "block_registry.h"
 #include "texture_manager.h"
 
 
-renderer::ChunkMesh renderer::create_chunk_mesh(const Chunk &chunk) {
+renderer::ChunkMesh *renderer::create_chunk_mesh(const Chunk &chunk) {
     unsigned int VAO, VBO, EBO;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
@@ -39,13 +38,21 @@ renderer::ChunkMesh renderer::create_chunk_mesh(const Chunk &chunk) {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    ChunkMesh chunk_mesh{};
-    chunk_mesh.EBO = EBO;
-    chunk_mesh.VBO = VBO;
-    chunk_mesh.VAO = VAO;
-    chunk_mesh.num_indices = index_buffer.size();
-    chunk_mesh.position = chunk.position();
+    auto chunk_mesh = new ChunkMesh();
+    chunk_mesh->EBO = EBO;
+    chunk_mesh->VBO = VBO;
+    chunk_mesh->VAO = VAO;
+    chunk_mesh->num_indices = index_buffer.size();
+    chunk_mesh->position = chunk.position();
     return chunk_mesh;
+}
+
+void renderer::delete_chunk_mesh(ChunkMesh *mesh) {
+    glDeleteVertexArrays(1, &mesh->VAO);
+    glDeleteBuffers(1, &mesh->VBO);
+    glDeleteBuffers(1, &mesh->EBO);
+
+    delete mesh;
 }
 
 void renderer::add_face(std::vector<float> &vertex_buffer, std::vector<uint32_t> &index_buffer, Direction direction,

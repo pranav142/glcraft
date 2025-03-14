@@ -18,7 +18,7 @@ enum class CameraDirection {
 
 class Camera {
 public:
-    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
+    Camera(glm::vec3 position = glm::vec3(0.0f, 17.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
            float yaw = 0.0f, float pitch = 0.0f, bool enable_flying = false) : m_position(position),
                                                                        m_up(up),
                                                                        m_yaw(yaw),
@@ -45,7 +45,7 @@ private:
     void update_vectors();
 
 private:
-    glm::vec3 m_position = glm::vec3(0, 0, 0);
+    glm::vec3 m_position = glm::vec3(0, 0 , 0);
     glm::vec3 m_front = glm::vec3(0, 0, -1);;
     glm::vec3 m_up = glm::vec3(0, 1, 0);
     glm::vec3 m_right = glm::vec3(1, 0, 0);

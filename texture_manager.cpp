@@ -7,7 +7,7 @@
 #include <glad/glad.h>
 #include <iostream>
 
-renderer::TextureManager::TextureManager() {
+void renderer::TextureManager::initialize() {
     create_atlas_texture();
 }
 

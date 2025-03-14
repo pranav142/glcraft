@@ -8,7 +8,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/gtc/type_ptr.hpp>
 
-renderer::Shader::Shader(const std::string &vertex_path, const std::string &fragment_path) {
+void renderer::Shader::initialize(const std::string &vertex_path, const std::string &fragment_path) {
     std::optional<unsigned int> vertex_shader = compile_vertex_shader(vertex_path);
     if (!vertex_shader.has_value()) {
         return;

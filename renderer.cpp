@@ -6,9 +6,11 @@
 #include "glad/glad.h"
 #include <glm/ext.hpp>
 
-renderer::Renderer::Renderer(int width, int height) {
+void renderer::Renderer::initialize(int width, int height) {
     glViewport(0, 0, width, height);
     update_projection_matrix(width, height);
+    m_block_shader.initialize("shaders/shader.vert", "shaders/shader.frag");
+    m_texture_manager.initialize();
 }
 
 void renderer::Renderer::resize(int width, int height) {

@@ -32,7 +32,9 @@ namespace renderer {
 
     class TextureManager {
     public:
-        TextureManager();
+        TextureManager() = default;
+
+        void initialize();
 
         void bind_texture() const;
 

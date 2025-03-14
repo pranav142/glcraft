@@ -12,7 +12,9 @@
 namespace renderer {
     class Shader {
     public:
-        Shader(const std::string &vertex_path, const std::string &fragment_path);
+        Shader() = default;
+
+        void initialize(const std::string& vertex_path, const std::string& fragment_path);
 
         void use() const;
 

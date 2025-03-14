@@ -24,12 +24,14 @@ add_executable(minecraft
         texture_manager.h
         chunk.cpp
         chunk.h
-        chunk_generator.cpp
-        chunk_generator.h
         block_registry.cpp
         block_registry.h
         camera.cpp
         camera.h
+        minecraft.cpp
+        minecraft.h
+        world.cpp
+        world.h
 )
 
 target_link_libraries(minecraft PUBLIC glfw)

@@ -8,13 +8,16 @@
 #include "block.h"
 #include "chunk.h"
 #include "texture_manager.h"
+#include <glad/glad.h>
 
 namespace renderer {
     struct ChunkMesh {
-        unsigned int VBO, VAO, EBO;
-        glm::vec3 position;
-        int num_indices;
+        unsigned int VBO = 0, VAO = 0, EBO = 0;
+        glm::vec3 position = glm::vec3(0, 0, 0);
+        int num_indices = 0;
     };
+
+    constexpr int RENDER_RADIUS = 6;
 
     static Block empty_block = Block(BlockTypeID::EMPTY);
 
@@ -27,14 +30,18 @@ namespace renderer {
         BACK,
     };
 
-    ChunkMesh create_chunk_mesh(const Chunk& chunk);
+    ChunkMesh* create_chunk_mesh(const Chunk &chunk);
 
-    static void add_face(std::vector<float> &vertex_buffer, std::vector<uint32_t> &index_buffer, Direction direction,
-                        Block block, glm::vec3 block_position);
+    void delete_chunk_mesh(ChunkMesh *mesh);
+
+    static void add_face(std::vector<float> &vertex_buffer, std::vector<uint32_t> &index_buffer,
+                         Direction direction,
+                         Block block, glm::vec3 block_position);
 
     static std::vector<float> get_face_vertices(Direction direction, const AtlasTextureCoordinates &coords);
 
-    static void fill_chunk_vertex_and_index_buffer(std::vector<float> &vertex_buffer, std::vector<uint32_t> &index_buffer, const Chunk& chunk);
+    static void fill_chunk_vertex_and_index_buffer(std::vector<float> &vertex_buffer,
+                                                   std::vector<uint32_t> &index_buffer, const Chunk &chunk);
 
     static AtlasTextureCoordinates get_block_texture_coordinates(Block &block, Direction direction);
 };

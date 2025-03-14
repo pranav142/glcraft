@@ -15,7 +15,9 @@
 namespace renderer {
     class Renderer {
     public:
-        Renderer(int width, int height);
+        Renderer() = default;
+
+        void initialize(int width, int height);
 
         void resize(int width, int height);
 
@@ -32,8 +34,8 @@ namespace renderer {
 
     private:
         glm::mat4 m_projection_matrix = glm::mat4(1.0f);
-        Shader m_block_shader = Shader("shaders/shader.vert", "shaders/shader.frag");
-        TextureManager m_texture_manager;
+        Shader m_block_shader = Shader();
+        TextureManager m_texture_manager = TextureManager();
     };
 } // renderer
 
