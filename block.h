@@ -9,7 +9,7 @@
 
 #include "texture_manager.h"
 
-enum class BlockTypeID : uint16_t {
+enum class BlockTypeID : uint8_t {
     GRASS = 0,
     STONE = 1,
     DIRT = 2,

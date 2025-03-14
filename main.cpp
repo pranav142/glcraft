@@ -1,6 +1,6 @@
 #include "minecraft.h"
 
 int main() {
-    Minecraft minecraft(1920, 1080);
+    Minecraft minecraft(800, 600);
     minecraft.run();
 }

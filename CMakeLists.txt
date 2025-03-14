@@ -32,6 +32,8 @@ add_executable(minecraft
         minecraft.h
         world.cpp
         world.h
+        world_gen.cpp
+        world_gen.h
 )
 
 target_link_libraries(minecraft PUBLIC glfw)

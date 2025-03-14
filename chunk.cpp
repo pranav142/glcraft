@@ -3,9 +3,7 @@
 //
 
 #include "chunk.h"
-
 #include "mesh_generator.h"
-
 
 const Block &Chunk::get_block(int x, int y, int z) const {
     int index = calculate_index(x, y, z);
@@ -48,10 +46,10 @@ bool Chunk::coordinate_in_bounds(int x, int y, int z) const {
     return (x < CHUNK_WIDTH && y < CHUNK_HEIGHT && z < CHUNK_LENGTH && x >= 0 && y >= 0 && z >= 0);
 }
 
-renderer::ChunkMesh* Chunk::get_mesh() const {
+renderer::ChunkMesh *Chunk::get_mesh() const {
     return m_mesh;
 }
 
-void Chunk::set_mesh(renderer::ChunkMesh* mesh) {
+void Chunk::set_mesh(renderer::ChunkMesh *mesh) {
     m_mesh = mesh;
 }

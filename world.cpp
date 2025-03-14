@@ -3,108 +3,78 @@
 //
 
 #include "world.h"
-
-#include "mesh_generator.h"
 #include "mesh_generator.h"
 #include "unordered_set"
+
+#include <algorithm>
 
 void World::initialize() {
     // create_example_chunks();
 }
 
-// THIS IS FUCKING NASTY FIND A BETTER WAY
-namespace std {
-    template<>
-    struct hash<glm::vec3> {
-        size_t operator()(const glm::vec3& v) const {
-            // Combine the hash of each component
-            size_t hash = 0;
-            hash ^= std::hash<float>()(v.x) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-            hash ^= std::hash<float>()(v.y) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-            hash ^= std::hash<float>()(v.z) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-            return hash;
-        }
-    };
-}
+// TODO: ADJUST MAGIC NUMBERS FOR RENDER DISTANCE
+void World::update(const glm::vec3 &player_position) {
+    glm::ivec3 player_chunk_pos = world_position_to_chunk_position(player_position);
 
-const std::vector<Chunk> &World::get_chunks(const glm::vec3 &position) {
-    glm::ivec3 player_chunk_pos = glm::ivec3(
-        floor(position.x / 16.0f) * 16,
-        floor(position.y / 16.0f) * 16,
-        floor(position.z / 16.0f) * 16
-    );
+    auto remove_it = std::remove_if(
+        m_chunks.begin(), m_chunks.end(),
+        [this, &player_chunk_pos](const Chunk &chunk) {
+            bool out_of_range = is_chunk_out_of_range(chunk.position(), player_chunk_pos);
 
-    // Create a set of positions that should be loaded
-    std::unordered_set<glm::vec3> desired_chunk_positions;
+            if (out_of_range) {
+                if (renderer::ChunkMesh *mesh = chunk.get_mesh()) {
+                    delete_chunk_mesh(mesh);
+                }
+            }
 
-    // Add all positions within range to our desired set
+            return out_of_range;
+        });
+
+    m_chunks.erase(remove_it, m_chunks.end());
+
     for (int x = -3; x <= 3; x++) {
         for (int z = -3; z <= 3; z++) {
-            glm::vec3 chunk_pos(
-                player_chunk_pos.x + (x * 16),
-                0, // Always place floor at y=0
-                player_chunk_pos.z + (z * 16)
-            );
+            auto chunk_position = glm::vec3(player_chunk_pos.x + (x * CHUNK_WIDTH),
+                                            0,
+                                            player_chunk_pos.z + (z * CHUNK_LENGTH));
 
-            desired_chunk_positions.insert(chunk_pos);
-        }
-    }
-
-    // First, unload chunks that are out of range
-    for (auto it = m_chunks.begin(); it != m_chunks.end();) {
-        bool keep_chunk = desired_chunk_positions.find(it->position()) != desired_chunk_positions.end();
-
-        if (!keep_chunk) {
-            // Clean up mesh resources before removing chunk
-            renderer::ChunkMesh *mesh = it->get_mesh();
-            if (mesh) {
-                renderer::delete_chunk_mesh(mesh);
-            }
-
-            it = m_chunks.erase(it);
-        } else {
-            // Only increment if we didn't erase
-            ++it;
-        }
-    }
-
-    // Now load new chunks that don't exist yet
-    for (const auto &chunk_pos: desired_chunk_positions) {
-        // Check if chunk already exists
-        bool chunk_exists = false;
-        for (auto &chunk: m_chunks) {
-            if (chunk.position() == chunk_pos) {
-                chunk_exists = true;
-                break;
-            }
-        }
-
-        // Create new chunk if it doesn't exist
-        if (!chunk_exists) {
-            Chunk new_chunk(chunk_pos.x, chunk_pos.y, chunk_pos.z);
-            create_stone_chunk(CHUNK_WIDTH, CHUNK_WIDTH, 16, new_chunk);
-
-            if (new_chunk.get_block_count() > 0) {
-                renderer::ChunkMesh *mesh = renderer::create_chunk_mesh(new_chunk);
-                new_chunk.set_mesh(mesh);
-                m_chunks.push_back(new_chunk);
+            if (!is_chunk_loaded(chunk_position)) {
+                load_chunk(chunk_position);
             }
         }
     }
+}
 
+const std::vector<Chunk> &World::get_chunks() const {
     return m_chunks;
 }
 
-void World::create_example_chunks() {
-    //  for (int i = -8; i <= 8; i++) {
-    //      for (int j = -8; j <= 8; j++) {
-    //          Chunk chunk(16 * i, 0, 16 * j);
-    //          create_stone_chunk(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_LENGTH, chunk);
-    //          if (!chunk.get_block_count() == 0) {
-    //              m_chunks.push_back(renderer::create_chunk_mesh(chunk));
-    //          }
-    //      }
-    //  }
+bool World::is_chunk_loaded(const glm::vec3 &chunk_position) const {
+    for (auto &chunk: m_chunks) {
+        if (chunk.position() == chunk_position) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool World::is_chunk_out_of_range(const glm::vec3 &chunk_position, const glm::vec3 &player_chunk_position) const {
+    int chunk_grid_x = round((chunk_position.x - player_chunk_position.x) / 16.0f);
+    int chunk_grid_z = round((chunk_position.z - player_chunk_position.z) / 16.0f);
+
+    return (abs(chunk_grid_x) > 3 || abs(chunk_grid_z) > 3);
+}
+
+void World::load_chunk(const glm::vec3 &chunk_position) {
+    Chunk new_chunk(chunk_position.x, chunk_position.y, chunk_position.z);
+    create_stone_chunk(CHUNK_LENGTH, CHUNK_WIDTH, CHUNK_HEIGHT, new_chunk);
+
+    if (new_chunk.get_block_count() > 0) {
+        renderer::ChunkMesh *mesh = renderer::create_chunk_mesh(new_chunk);
+        new_chunk.set_mesh(mesh);
+    }
+
+    m_chunks.push_back(new_chunk);
 }
 
 void World::create_stone_chunk(int length, int width, int height, Chunk &chunk) const {

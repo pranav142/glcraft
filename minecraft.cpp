@@ -48,6 +48,7 @@ bool Minecraft::initialize() {
 
     m_renderer.initialize(m_width, m_height);
     m_renderer.enable_culling();
+    m_renderer.enable_wireframe();
 
     // m_camera.enable_flying();
 
@@ -90,6 +91,7 @@ void Minecraft::run() {
         m_last_frame = m_current_frame;
 
         process_input();
+        update();
         render();
 
         glfwSwapBuffers(m_window);
@@ -103,21 +105,24 @@ void Minecraft::render() {
     m_renderer.begin_frame();
     glm::mat4 view = m_camera.view_matrix();
 
-    auto chunks = m_world.get_chunks(m_camera.position());
+    auto chunks = m_world.get_chunks();
     for (auto &chunk: chunks) {
         renderer::ChunkMesh* chunk_mesh = chunk.get_mesh();
         if (chunk_mesh) {
             m_renderer.render_chunk(*chunk_mesh, view);
         }
-
     }
+}
+
+void Minecraft::update() {
+    m_world.update(m_camera.position());
 }
 
 void Minecraft::process_input() {
     if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(m_window, true);
 
-    float camera_speed = 1000.0f * m_delta_time;
+    float camera_speed = 5.0f * m_delta_time;
 
     if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS)
         m_camera.move(CameraDirection::FORWARD, camera_speed);

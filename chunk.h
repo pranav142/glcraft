@@ -49,4 +49,12 @@ private:
     renderer::ChunkMesh* m_mesh = nullptr;
 };
 
+inline glm::vec3 world_position_to_chunk_position(const glm::vec3 &world_position) {
+    return {
+        floor(world_position.x / CHUNK_WIDTH) * CHUNK_WIDTH,
+        floor(world_position.y / CHUNK_HEIGHT) * CHUNK_HEIGHT,
+        floor(world_position.z / CHUNK_LENGTH) * CHUNK_LENGTH
+    };
+}
+
 #endif //CHUNK_H

@@ -29,6 +29,7 @@ public:
 
     void render();
 
+    void update();
 private:
     void process_input();
 
