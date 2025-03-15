@@ -48,11 +48,11 @@ bool Minecraft::initialize() {
 
     m_renderer.initialize(m_width, m_height);
     m_renderer.enable_culling();
-    m_renderer.enable_wireframe();
+    // m_renderer.enable_wireframe();
 
-    // m_camera.enable_flying();
+    m_camera.enable_flying();
 
-    m_world.initialize();
+    m_world.initialize(m_camera.position());
 
     return true;
 }

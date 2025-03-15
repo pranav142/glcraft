@@ -34,6 +34,7 @@ add_executable(minecraft
         world.h
         world_gen.cpp
         world_gen.h
+        libs/FastNoise/FastNoiseLite.h
 )
 
 target_link_libraries(minecraft PUBLIC glfw)
@@ -42,6 +43,7 @@ target_include_directories(minecraft PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/libs/glad/include
         ${CMAKE_CURRENT_SOURCE_DIR}/libs/stb
         ${CMAKE_CURRENT_SOURCE_DIR}/libs/glm
+        ${CMAKE_CURRENT_SOURCE_DIR}/libs/FastNoise
 )
 
 add_custom_target(copy_resources ALL

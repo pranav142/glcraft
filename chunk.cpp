@@ -39,7 +39,7 @@ glm::vec3 Chunk::position() const {
 }
 
 int Chunk::calculate_index(int x, int y, int z) const {
-    return x * 256 + y * 16 + z;
+    return x * CHUNK_WIDTH * CHUNK_HEIGHT + y * CHUNK_WIDTH + z;
 }
 
 bool Chunk::coordinate_in_bounds(int x, int y, int z) const {
