@@ -44,6 +44,8 @@ namespace renderer {
                                                    std::vector<uint32_t> &index_buffer, const Chunk &chunk);
 
     static AtlasTextureCoordinates get_block_texture_coordinates(Block &block, Direction direction);
+
+    static float get_face_brightness(Direction direction);
 };
 
 

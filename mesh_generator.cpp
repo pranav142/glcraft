@@ -32,11 +32,14 @@ renderer::ChunkMesh *renderer::create_chunk_mesh(const Chunk &chunk) {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vertex_buffer.size() * sizeof(float), vertex_buffer.data(), GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) 0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (5 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     auto chunk_mesh = new ChunkMesh();
     chunk_mesh->EBO = EBO;
@@ -64,7 +67,9 @@ void renderer::add_face(std::vector<float> &vertex_buffer, std::vector<uint32_t>
         return;
     }
 
-    int vertex_count = vertex_buffer.size() / 5;
+    float brightness = get_face_brightness(direction);
+
+    int vertex_count = vertex_buffer.size() / 6;
 
     for (int i = 0; i < 4; i++) {
         vertex_buffer.push_back(block_position.x + vertices[5 * i]);
@@ -72,7 +77,7 @@ void renderer::add_face(std::vector<float> &vertex_buffer, std::vector<uint32_t>
         vertex_buffer.push_back(block_position.z + vertices[5 * i + 2]);
         vertex_buffer.push_back(vertices[5 * i + 3]);
         vertex_buffer.push_back(vertices[5 * i + 4]);
-
+        vertex_buffer.push_back(brightness);
 
         //  vertex_buffer.push_back(i == 0 || i == 3 ? tex_coords.min_u : tex_coords.max_u);
         //  vertex_buffer.push_back(i == 0 || i == 1 ? tex_coords.min_v : tex_coords.max_v);
@@ -202,4 +207,22 @@ renderer::AtlasTextureCoordinates renderer::get_block_texture_coordinates(Block 
             return block_type.textures.front;
     }
     return {0, 0, 0, 0};
+}
+
+float renderer::get_face_brightness(Direction direction) {
+    switch (direction) {
+        case Direction::UP:
+            return 0.9f; // Bright but not direct sunlight
+        case Direction::DOWN:
+            return 0.3f; // Very dark as it faces away from all light
+        case Direction::RIGHT:
+            return 1.0f; // Brightest face, directly facing the east sun
+        case Direction::LEFT:
+            return 0.3f; // Opposite from sun, only gets ambient light
+        case Direction::FRONT:
+            return 0.65f; // Gets partial sunlight
+        case Direction::BACK:
+            return 0.45f; // Less direct light than front
+    }
+    return 1.0f;
 }
