@@ -107,11 +107,11 @@ void Minecraft::render() {
 
     std::vector<Chunk>& chunks = m_world.get_chunks();
     int meshes_created = 0;
-    constexpr int MAX_MESHES_PER_FRAME = 2;
+    constexpr int MAX_MESHES_PER_FRAME = 1;
 
     for (auto &chunk: chunks) {
         if (!chunk.get_mesh() && meshes_created < MAX_MESHES_PER_FRAME) {
-            renderer::ChunkMesh *chunk_mesh = renderer::create_chunk_mesh(chunk, TODO);
+            renderer::ChunkMesh *chunk_mesh = renderer::create_chunk_mesh(chunk, chunks);
             chunk.set_mesh(chunk_mesh);
             meshes_created++;
         }

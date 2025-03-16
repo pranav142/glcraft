@@ -10,8 +10,7 @@
 #include "block_registry.h"
 #include "texture_manager.h"
 
-
-renderer::ChunkMesh *renderer::create_chunk_mesh(const Chunk &chunk) {
+renderer::ChunkMesh *renderer::create_chunk_mesh(const Chunk &chunk, const std::vector<Chunk> &chunks) {
     unsigned int VAO, VBO, EBO;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
@@ -22,7 +21,7 @@ renderer::ChunkMesh *renderer::create_chunk_mesh(const Chunk &chunk) {
     vertex_buffer.reserve(3600);
     index_buffer.reserve(1500);
 
-    fill_chunk_vertex_and_index_buffer(vertex_buffer, index_buffer, chunk);
+    fill_chunk_vertex_and_index_buffer(vertex_buffer, index_buffer, chunk, chunks);
 
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -78,9 +77,6 @@ void renderer::add_face(std::vector<float> &vertex_buffer, std::vector<uint32_t>
         vertex_buffer.push_back(vertices[5 * i + 3]);
         vertex_buffer.push_back(vertices[5 * i + 4]);
         vertex_buffer.push_back(brightness);
-
-        //  vertex_buffer.push_back(i == 0 || i == 3 ? tex_coords.min_u : tex_coords.max_u);
-        //  vertex_buffer.push_back(i == 0 || i == 1 ? tex_coords.min_v : tex_coords.max_v);
     }
 
     index_buffer.push_back(vertex_count);
@@ -140,8 +136,10 @@ std::vector<float> renderer::get_face_vertices(Direction direction, const AtlasT
     }
 }
 
+// TODO: Update This To Look At Adjacent Chunks
 void renderer::fill_chunk_vertex_and_index_buffer(std::vector<float> &vertex_buffer,
-                                                  std::vector<uint32_t> &index_buffer, const Chunk &chunk) {
+                                                  std::vector<uint32_t> &index_buffer, const Chunk &chunk,
+                                                  const std::vector<Chunk> &chunks) {
     // Checks Adjacent Blocks and only
     // adds vertices that are not covered
     // by another block
@@ -154,33 +152,32 @@ void renderer::fill_chunk_vertex_and_index_buffer(std::vector<float> &vertex_buf
                 }
 
                 glm::vec3 block_position = glm::vec3(i, j, k) + chunk.position();
-
-                auto top_block = chunk.get_block(i, j + 1, k);
+                auto top_block = renderer::get_block(i, j + 1, k, chunk, chunks);
                 if (top_block.type == BlockTypeID::EMPTY) {
                     add_face(vertex_buffer, index_buffer, Direction::UP, block, block_position);
                 }
 
-                auto bottom_block = chunk.get_block(i, j - 1, k);
+                auto bottom_block = renderer::get_block(i, j - 1, k, chunk, chunks);
                 if (bottom_block.type == BlockTypeID::EMPTY) {
                     add_face(vertex_buffer, index_buffer, Direction::DOWN, block, block_position);
                 }
 
-                auto right_block = chunk.get_block(i + 1, j, k);
+                auto right_block = renderer::get_block(i + 1, j, k, chunk, chunks);
                 if (right_block.type == BlockTypeID::EMPTY) {
                     add_face(vertex_buffer, index_buffer, Direction::RIGHT, block, block_position);
                 }
 
-                auto left_block = chunk.get_block(i - 1, j, k);
+                auto left_block = renderer::get_block(i - 1, j, k, chunk, chunks);
                 if (left_block.type == BlockTypeID::EMPTY) {
                     add_face(vertex_buffer, index_buffer, Direction::LEFT, block, block_position);
                 }
 
-                auto front_block = chunk.get_block(i, j, k + 1);
+                auto front_block = renderer::get_block(i, j, k + 1, chunk, chunks);
                 if (front_block.type == BlockTypeID::EMPTY) {
                     add_face(vertex_buffer, index_buffer, Direction::FRONT, block, block_position);
                 }
 
-                auto back_block = chunk.get_block(i, j, k - 1);
+                auto back_block = renderer::get_block(i, j, k - 1, chunk, chunks);
                 if (back_block.type == BlockTypeID::EMPTY) {
                     add_face(vertex_buffer, index_buffer, Direction::BACK, block, block_position);
                 }
@@ -225,4 +222,22 @@ float renderer::get_face_brightness(Direction direction) {
             return 0.45f; // Less direct light than front
     }
     return 1.0f;
+}
+
+Block renderer::get_block(int x, int y, int z, const Chunk &chunk, const std::vector<Chunk> &chunks) {
+    if (chunk.coordinate_in_bounds(x, y, z)) {
+        return chunk.get_block(x, y, z);
+    }
+
+    glm::vec3 world_position = chunk.position() + glm::vec3(x, y, z);
+    glm::vec3 chunk_position = world_position_to_chunk_position(world_position);
+
+    for (auto &other_chunk: chunks) {
+        if (other_chunk.position() == chunk_position) {
+            glm::vec3 relative_position = world_position - other_chunk.position();
+            return other_chunk.get_block(relative_position.x, relative_position.y, relative_position.z);
+        }
+    }
+
+    return empty_block;
 }

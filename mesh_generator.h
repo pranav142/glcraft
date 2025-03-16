@@ -30,7 +30,7 @@ namespace renderer {
         BACK,
     };
 
-    ChunkMesh* create_chunk_mesh(const Chunk &chunk);
+    ChunkMesh* create_chunk_mesh(const Chunk &chunk, const std::vector<Chunk> &chunks);
 
     void delete_chunk_mesh(ChunkMesh *mesh);
 
@@ -41,11 +41,13 @@ namespace renderer {
     static std::vector<float> get_face_vertices(Direction direction, const AtlasTextureCoordinates &coords);
 
     static void fill_chunk_vertex_and_index_buffer(std::vector<float> &vertex_buffer,
-                                                   std::vector<uint32_t> &index_buffer, const Chunk &chunk);
+                                                   std::vector<uint32_t> &index_buffer, const Chunk &chunk, const std::vector<Chunk> &chunks);
 
     static AtlasTextureCoordinates get_block_texture_coordinates(Block &block, Direction direction);
 
     static float get_face_brightness(Direction direction);
+
+    static Block get_block(int x, int y, int z, const Chunk &chunk, const std::vector<Chunk> &chunks);
 };
 
 

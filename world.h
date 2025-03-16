@@ -9,7 +9,7 @@
 #include "mesh_generator.h"
 #include "world_gen.h"
 
-static constexpr int SIMULATION_RADIUS = 3;
+static constexpr int SIMULATION_RADIUS = 6;
 
 class World {
 public:

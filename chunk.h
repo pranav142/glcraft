@@ -36,10 +36,11 @@ public:
 
     void set_mesh(renderer::ChunkMesh* mesh);
 
+    [[nodiscard]] bool coordinate_in_bounds(int x, int y, int z) const;
+
 private:
     [[nodiscard]] int calculate_index(int x, int y, int z) const;
 
-    [[nodiscard]] bool coordinate_in_bounds(int x, int y, int z) const;
 
 private:
     glm::vec3 m_position = glm::vec3(0, 0, 0);
