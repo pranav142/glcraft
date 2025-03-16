@@ -36,7 +36,7 @@ bool Minecraft::initialize() {
         }
     });
 
-    glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    // glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glfwSetCursorPosCallback(m_window, [](GLFWwindow *window, double xpos, double ypos) {
         if (auto instance = static_cast<Minecraft *>(glfwGetWindowUserPointer(window))) {
@@ -105,10 +105,19 @@ void Minecraft::render() {
     m_renderer.begin_frame();
     glm::mat4 view = m_camera.view_matrix();
 
-    auto chunks = m_world.get_chunks();
+    std::vector<Chunk>& chunks = m_world.get_chunks();
+    int meshes_created = 0;
+    constexpr int MAX_MESHES_PER_FRAME = 2;
+
     for (auto &chunk: chunks) {
-        renderer::ChunkMesh* chunk_mesh = chunk.get_mesh();
-        if (chunk_mesh) {
+        if (!chunk.get_mesh() && meshes_created < MAX_MESHES_PER_FRAME) {
+            renderer::ChunkMesh *chunk_mesh = renderer::create_chunk_mesh(chunk, TODO);
+            chunk.set_mesh(chunk_mesh);
+            meshes_created++;
+        }
+
+        if (chunk.get_mesh()) {
+            renderer::ChunkMesh *chunk_mesh = chunk.get_mesh();
             m_renderer.render_chunk(*chunk_mesh, view);
         }
     }

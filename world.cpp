@@ -6,8 +6,8 @@
 #include "mesh_generator.h"
 #include "unordered_set"
 #include "iostream"
+#include "timer.h"
 #include <algorithm>
-#include <ostream>
 
 void World::initialize(const glm::vec3 &player_position) {
     glm::ivec3 player_chunk_pos = world_position_to_chunk_position(player_position);
@@ -24,7 +24,7 @@ void World::update(const glm::vec3 &player_position) {
     }
 }
 
-const std::vector<Chunk> &World::get_chunks() const {
+std::vector<Chunk> &World::get_chunks() {
     return m_chunks;
 }
 
@@ -42,7 +42,8 @@ bool World::is_chunk_out_of_range(const glm::vec3 &chunk_position, const glm::ve
     int chunk_grid_z = round((chunk_position.z - player_chunk_position.z) / CHUNK_LENGTH);
     int chunk_grid_y = round((chunk_position.y - player_chunk_position.y) / CHUNK_HEIGHT);
 
-    return (abs(chunk_grid_x) > SIMULATION_RADIUS || abs(chunk_grid_z) > SIMULATION_RADIUS  || abs(chunk_grid_y) > SIMULATION_RADIUS);
+    return (abs(chunk_grid_x) > SIMULATION_RADIUS || abs(chunk_grid_z) > SIMULATION_RADIUS || abs(chunk_grid_y) >
+            SIMULATION_RADIUS);
 }
 
 void World::load_chunk(const glm::vec3 &chunk_position) {
@@ -50,11 +51,9 @@ void World::load_chunk(const glm::vec3 &chunk_position) {
     m_world_generator.generate_chunk(new_chunk);
 
     if (new_chunk.get_block_count() > 0) {
-        renderer::ChunkMesh *mesh = renderer::create_chunk_mesh(new_chunk);
-        new_chunk.set_mesh(mesh);
+        m_chunks.push_back(new_chunk);
     }
 
-    m_chunks.push_back(new_chunk);
 }
 
 void World::update_chunks() {

@@ -9,7 +9,7 @@
 #include "mesh_generator.h"
 #include "world_gen.h"
 
-static constexpr int SIMULATION_RADIUS = 4;
+static constexpr int SIMULATION_RADIUS = 3;
 
 class World {
 public:
@@ -19,7 +19,7 @@ public:
 
     void update(const glm::vec3 &player_position);
 
-    [[nodiscard]] const std::vector<Chunk> &get_chunks() const;
+    [[nodiscard]] std::vector<Chunk> &get_chunks();
 
 private:
     [[nodiscard]] bool is_chunk_loaded(const glm::vec3 &chunk_position) const;
