@@ -14,25 +14,42 @@
 // TODO: Passing In World is bad practice
 // TODO: Adjust to take in neighboring blocks
 renderer::ChunkMesh *renderer::create_chunk_mesh(const Chunk &chunk, const World &world) {
+    std::vector<float> opaque_vertex_buffer;
+    std::vector<uint32_t> opaque_index_buffer;
+
+    opaque_vertex_buffer.reserve(40000);
+    opaque_index_buffer.reserve(10000);
+
+    std::vector<float> transparent_vertex_buffer;
+    std::vector<uint32_t> transparent_index_buffer;
+
+    fill_chunk_vertex_and_index_buffer(opaque_vertex_buffer, opaque_index_buffer, chunk, world);
+
+    auto chunk_mesh = new ChunkMesh();
+    initialize_opqaue_mesh(chunk_mesh, opaque_vertex_buffer, opaque_index_buffer);
+    chunk_mesh->position = chunk.position();
+    return chunk_mesh;
+}
+
+void renderer::initialize_opqaue_mesh(ChunkMesh *chunk_mesh, const std::vector<float> &vertex_buffer,
+                                      const std::vector<uint32_t> &index_buffer) {
+    if (vertex_buffer.empty() || index_buffer.empty()) {
+        return;
+    }
+
     unsigned int VAO, VBO, EBO;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
-    std::vector<float> vertex_buffer;
-    std::vector<uint32_t> index_buffer;
-
-    vertex_buffer.reserve(40000);
-    index_buffer.reserve(10000);
-
-    TIME_FUNCTION(fill_chunk_vertex_and_index_buffer(vertex_buffer, index_buffer, chunk, world), "Filling vertices");
-
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_buffer.size() * sizeof(uint32_t), index_buffer.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_buffer.size() * sizeof(uint32_t), index_buffer.data(),
+                 GL_STATIC_DRAW);
 
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertex_buffer.size() * sizeof(float), vertex_buffer.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertex_buffer.size() * sizeof(float), vertex_buffer.data(),
+                 GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) 0);
     glEnableVertexAttribArray(0);
@@ -43,19 +60,21 @@ renderer::ChunkMesh *renderer::create_chunk_mesh(const Chunk &chunk, const World
     glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (5 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    auto chunk_mesh = new ChunkMesh();
-    chunk_mesh->EBO = EBO;
-    chunk_mesh->VBO = VBO;
-    chunk_mesh->VAO = VAO;
-    chunk_mesh->num_indices = index_buffer.size();
-    chunk_mesh->position = chunk.position();
-    return chunk_mesh;
+    chunk_mesh->opaque_mesh.EBO = EBO;
+    chunk_mesh->opaque_mesh.VBO = VBO;
+    chunk_mesh->opaque_mesh.VAO = VAO;
+    chunk_mesh->opaque_mesh.num_indices = index_buffer.size();
 }
 
+
 void renderer::delete_chunk_mesh(ChunkMesh *mesh) {
-    glDeleteVertexArrays(1, &mesh->VAO);
-    glDeleteBuffers(1, &mesh->VBO);
-    glDeleteBuffers(1, &mesh->EBO);
+    glDeleteVertexArrays(1, &mesh->opaque_mesh.VAO);
+    glDeleteBuffers(1, &mesh->opaque_mesh.VBO);
+    glDeleteBuffers(1, &mesh->opaque_mesh.EBO);
+
+    glDeleteVertexArrays(1, &mesh->transparent_mesh.VAO);
+    glDeleteBuffers(1, &mesh->transparent_mesh.VBO);
+    glDeleteBuffers(1, &mesh->transparent_mesh.EBO);
 
     delete mesh;
 }
@@ -189,12 +208,12 @@ Block renderer::get_block(int x, int y, int z, const Chunk &chunk, const World &
     glm::vec3 world_position = chunk.position() + glm::vec3(x, y, z);
     glm::vec3 chunk_position = world_position_to_chunk_position(world_position);
 
-    auto adjacent_chunk_opt= world.get_chunk(chunk_position);
+    auto adjacent_chunk_opt = world.get_chunk(chunk_position);
     if (!adjacent_chunk_opt) {
         return empty_block;
     }
 
-    const Chunk& adjacent_chunk = adjacent_chunk_opt->get();
+    const Chunk &adjacent_chunk = adjacent_chunk_opt->get();
     glm::vec3 relative_position = world_position - adjacent_chunk.position();
 
     return adjacent_chunk.get_block(

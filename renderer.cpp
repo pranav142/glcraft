@@ -47,8 +47,8 @@ void renderer::Renderer::render_chunk(const renderer::ChunkMesh &chunk_mesh, con
     auto model_matrix = glm::mat4(1.0f);
     m_block_shader.set_matrix("model", model_matrix);
 
-    glBindVertexArray(chunk_mesh.VAO);
-    glDrawElements(GL_TRIANGLES, chunk_mesh.num_indices, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(chunk_mesh.opaque_mesh.VAO);
+    glDrawElements(GL_TRIANGLES, chunk_mesh.opaque_mesh.num_indices, GL_UNSIGNED_INT, 0);
 }
 
 void renderer::Renderer::update_projection_matrix(int width, int height) {

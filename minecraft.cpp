@@ -111,14 +111,14 @@ void Minecraft::render() {
     constexpr int MAX_MESHES_PER_FRAME = 5;
 
     for (auto &chunk: chunks) {
-        if (!chunk.get_mesh() && meshes_created < MAX_MESHES_PER_FRAME && chunk.get_block_count() > 0) {
+        if (!chunk.get_opaque_mesh() && meshes_created < MAX_MESHES_PER_FRAME && chunk.get_block_count() > 0) {
             renderer::ChunkMesh *chunk_mesh = renderer::create_chunk_mesh(chunk, m_world);
-            chunk.set_mesh(chunk_mesh);
+            chunk.set_opaque_mesh(chunk_mesh);
             meshes_created++;
         }
 
-        if (chunk.get_mesh()) {
-            renderer::ChunkMesh *chunk_mesh = chunk.get_mesh();
+        if (chunk.get_opaque_mesh()) {
+            renderer::ChunkMesh *chunk_mesh = chunk.get_opaque_mesh();
             m_renderer.render_chunk(*chunk_mesh, view);
         }
     }

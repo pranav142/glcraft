@@ -13,11 +13,17 @@
 #include <glad/glad.h>
 
 namespace renderer {
-    struct ChunkMesh {
+    struct Mesh {
         unsigned int VBO = 0, VAO = 0, EBO = 0;
-        glm::vec3 position = glm::vec3(0, 0, 0);
         int num_indices = 0;
     };
+
+    struct ChunkMesh {
+        Mesh opaque_mesh;
+        Mesh transparent_mesh;
+        glm::vec3 position = glm::vec3(0, 0, 0);
+    };
+
 
     struct FaceTemplate {
         float vertices[20];
@@ -80,7 +86,7 @@ namespace renderer {
         FRONT,
     };
 
-    ChunkMesh *create_chunk_mesh(const Chunk &chunk, const World& world);
+    ChunkMesh *create_chunk_mesh(const Chunk &chunk, const World &world);
 
     void delete_chunk_mesh(ChunkMesh *mesh);
 
@@ -90,13 +96,15 @@ namespace renderer {
 
     static void fill_chunk_vertex_and_index_buffer(std::vector<float> &vertex_buffer,
                                                    std::vector<uint32_t> &index_buffer, const Chunk &chunk,
-                                                  const World& world);
+                                                   const World &world);
 
     static AtlasTextureCoordinates get_block_texture_coordinates(Block &block, Direction direction);
 
     static float get_face_brightness(Direction direction);
 
-    static Block get_block(int x, int y, int z, const Chunk &chunk, const World& world);
+    static Block get_block(int x, int y, int z, const Chunk &chunk, const World &world);
+
+    static void initialize_opqaue_mesh(ChunkMesh* mesh, const std::vector<float>& vertex_buffer, const std::vector<uint32_t>& index_buffer);
 };
 
 
