@@ -38,12 +38,24 @@ glm::vec3 Chunk::position() const {
     return m_position;
 }
 
+void Chunk::set_position(const glm::vec3 &position) {
+    m_position = position;
+}
+
 int Chunk::calculate_index(int x, int y, int z) const {
     return x * CHUNK_WIDTH * CHUNK_HEIGHT + y * CHUNK_WIDTH + z;
 }
 
 bool Chunk::coordinate_in_bounds(int x, int y, int z) const {
     return (x < CHUNK_WIDTH && y < CHUNK_HEIGHT && z < CHUNK_LENGTH && x >= 0 && y >= 0 && z >= 0);
+}
+
+bool Chunk::is_uninitialized() const {
+    return m_is_uninitialized;
+}
+
+void Chunk::set_unintialized(bool flag) {
+    m_is_uninitialized = flag;
 }
 
 renderer::ChunkMesh *Chunk::get_mesh() const {

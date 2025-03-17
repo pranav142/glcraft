@@ -14,7 +14,7 @@
 namespace std {
     template<>
     struct hash<glm::vec3> {
-        size_t operator()(const glm::vec3& v) const {
+        size_t operator()(const glm::vec3 &v) const {
             return ((static_cast<int>(v.x) * 73856093) ^
                     (static_cast<int>(v.y) * 19349663) ^
                     (static_cast<int>(v.z) * 83492791));
@@ -22,11 +22,14 @@ namespace std {
     };
 }
 
-static constexpr int SIMULATION_RADIUS = 8;
+static constexpr int SIMULATION_RADIUS = 24;
 
 class World {
 public:
-    World() = default;
+    World() {
+        m_new_chunks.reserve((2 * SIMULATION_RADIUS + 1) * (2 * SIMULATION_RADIUS + 1) * (2 * SIMULATION_RADIUS + 1));
+        m_old_chunks.reserve((2 * SIMULATION_RADIUS + 1) * (2 * SIMULATION_RADIUS + 1) * (2 * SIMULATION_RADIUS + 1));
+    };
 
     void initialize(const glm::vec3 &player_position);
 
@@ -42,22 +45,25 @@ private:
     [[nodiscard]] bool is_chunk_out_of_range(const glm::vec3 &chunk_position,
                                              const glm::vec3 &player_chunk_position) const;
 
-    void load_chunk(const glm::vec3 &chunk_position);
+    void load_chunk(::Chunk &chunk, const glm::vec3 & chunk_position);
+
+    int chunk_position_to_index(const glm::vec3& chunk_position) const;
+
+    glm::vec3 index_to_chunk_position(int index) const;
 
     void update_chunks();
 
 private:
-    std::vector<Chunk> m_chunks;
+    std::vector<Chunk> m_new_chunks;
+    std::vector<Chunk> m_old_chunks;
 
     // map of chunk position
     // to index in m_chunks
-    std::unordered_map<glm::vec3, size_t> m_chunk_map;
-
+    std::unordered_map<glm::vec3, Chunk *> m_chunk_map;
 
     WorldGenerator m_world_generator = WorldGenerator(1000);
 
-    bool is_first = true;
-    glm::ivec3 m_player_chunk_position = glm::ivec3(0, 0, 0);
+    glm::vec3 m_player_chunk_position = glm::vec3(0, 0, 0);
 };
 
 

@@ -189,7 +189,7 @@ Block renderer::get_block(int x, int y, int z, const Chunk &chunk, const World &
     glm::vec3 world_position = chunk.position() + glm::vec3(x, y, z);
     glm::vec3 chunk_position = world_position_to_chunk_position(world_position);
 
-    auto adjacent_chunk_opt = world.get_chunk(chunk_position);
+    auto adjacent_chunk_opt= world.get_chunk(chunk_position);
     if (!adjacent_chunk_opt) {
         return empty_block;
     }
@@ -198,8 +198,8 @@ Block renderer::get_block(int x, int y, int z, const Chunk &chunk, const World &
     glm::vec3 relative_position = world_position - adjacent_chunk.position();
 
     return adjacent_chunk.get_block(
-        static_cast<int>(relative_position.x),
-        static_cast<int>(relative_position.y),
-        static_cast<int>(relative_position.z)
+        relative_position.x,
+        relative_position.y,
+        relative_position.z
     );
 }
