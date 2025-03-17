@@ -107,7 +107,7 @@ namespace renderer {
 
     static Block get_block(int x, int y, int z, const Chunk &chunk, const World &world);
 
-    static void initialize_opqaue_mesh(Mesh &mesh, const std::vector<float> &vertex_buffer,
+    static void initialize_mesh(Mesh &mesh, const std::vector<float> &vertex_buffer,
                                        const std::vector<uint32_t> &index_buffer);
 
     static bool should_add_face(const Block &adjacent_block, const Block &block);

@@ -50,9 +50,10 @@ void renderer::Renderer::render_chunk(const renderer::ChunkMesh &chunk_mesh, con
     if (is_transparent && chunk_mesh.transparent_mesh.num_indices > 0) {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         glBindVertexArray(chunk_mesh.transparent_mesh.VAO);
         glDrawElements(GL_TRIANGLES, chunk_mesh.transparent_mesh.num_indices, GL_UNSIGNED_INT, 0);
-       glDepthMask(GL_TRUE);
+
         glDisable(GL_BLEND);
     } else {
         glBindVertexArray(chunk_mesh.opaque_mesh.VAO);

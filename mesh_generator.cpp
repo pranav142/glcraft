@@ -25,13 +25,13 @@ renderer::ChunkMesh *renderer::create_chunk_mesh(const Chunk &chunk, const World
                                        transparent_index_buffer, chunk, world);
 
     auto chunk_mesh = new ChunkMesh();
-    initialize_opqaue_mesh(chunk_mesh->opaque_mesh, opaque_vertex_buffer, opaque_index_buffer);
-    initialize_opqaue_mesh(chunk_mesh->transparent_mesh, transparent_vertex_buffer, transparent_index_buffer);
+    initialize_mesh(chunk_mesh->opaque_mesh, opaque_vertex_buffer, opaque_index_buffer);
+    initialize_mesh(chunk_mesh->transparent_mesh, transparent_vertex_buffer, transparent_index_buffer);
     chunk_mesh->position = chunk.position();
     return chunk_mesh;
 }
 
-void renderer::initialize_opqaue_mesh(Mesh& mesh, const std::vector<float> &vertex_buffer,
+void renderer::initialize_mesh(Mesh& mesh, const std::vector<float> &vertex_buffer,
                                       const std::vector<uint32_t> &index_buffer) {
     if (vertex_buffer.empty() || index_buffer.empty()) {
         return;
