@@ -54,5 +54,5 @@ void renderer::Renderer::render_chunk(const renderer::ChunkMesh &chunk_mesh, con
 void renderer::Renderer::update_projection_matrix(int width, int height) {
     m_projection_matrix = glm::perspective(glm::radians(45.0f),
                                            static_cast<float>(width) / static_cast<float>(height), 0.1f,
-                                           300.0f);
+                                           700.0f);
 }

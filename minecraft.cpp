@@ -8,6 +8,7 @@
 #include "block_registry.h"
 #include "renderer.h"
 #include "mesh_generator.h"
+#include "timer.h"
 
 bool Minecraft::initialize() {
     glfwInit();
@@ -111,7 +112,7 @@ void Minecraft::render() {
 
     for (auto &chunk: chunks) {
         if (!chunk.get_mesh() && meshes_created < MAX_MESHES_PER_FRAME) {
-            renderer::ChunkMesh *chunk_mesh = renderer::create_chunk_mesh(chunk, chunks);
+            renderer::ChunkMesh *chunk_mesh = renderer::create_chunk_mesh(chunk, m_world);
             chunk.set_mesh(chunk_mesh);
             meshes_created++;
         }

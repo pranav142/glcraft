@@ -15,6 +15,13 @@ void World::initialize(const glm::vec3 &player_position) {
     update_chunks();
 }
 
+std::optional<std::reference_wrapper<const Chunk>> World::get_chunk(const glm::vec3 &position) const {
+    if (auto it = m_chunk_map.find(position); it != m_chunk_map.end()) {
+        return m_chunks[it->second];
+    }
+    return std::nullopt;
+}
+
 void World::update(const glm::vec3 &player_position) {
     glm::ivec3 player_chunk_pos = world_position_to_chunk_position(player_position);
 
@@ -52,8 +59,8 @@ void World::load_chunk(const glm::vec3 &chunk_position) {
 
     if (new_chunk.get_block_count() > 0) {
         m_chunks.push_back(new_chunk);
+        m_chunk_map[chunk_position] = m_chunks.size() - 1;
     }
-
 }
 
 void World::update_chunks() {
@@ -66,7 +73,9 @@ void World::update_chunks() {
                 if (renderer::ChunkMesh *mesh = chunk.get_mesh()) {
                     delete_chunk_mesh(mesh);
                 }
+                m_chunk_map.erase(chunk.position());
             }
+
 
             return out_of_range;
         });
