@@ -22,7 +22,7 @@ namespace std {
     };
 }
 
-static constexpr int SIMULATION_RADIUS = 24;
+static constexpr int SIMULATION_RADIUS = 6;
 
 class World {
 public:
@@ -49,17 +49,11 @@ private:
 
     int chunk_position_to_index(const glm::vec3& chunk_position) const;
 
-    glm::vec3 index_to_chunk_position(int index) const;
-
     void update_chunks();
 
 private:
     std::vector<Chunk> m_new_chunks;
     std::vector<Chunk> m_old_chunks;
-
-    // map of chunk position
-    // to index in m_chunks
-    std::unordered_map<glm::vec3, Chunk *> m_chunk_map;
 
     WorldGenerator m_world_generator = WorldGenerator(1000);
 

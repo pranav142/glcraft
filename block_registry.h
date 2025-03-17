@@ -24,6 +24,8 @@ private:
     static void create_dirt_block();
 
     static void create_stone_block();
+
+    static void create_water_block();
 private:
     static std::array<BlockType, static_cast<int>(BlockTypeID::COUNT)> m_blocks;
 };

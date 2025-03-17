@@ -13,6 +13,7 @@ namespace renderer {
         GRASS_SIDE,
         DIRT,
         STONE,
+        WATER,
     };
 
     struct AtlasPosition {
@@ -27,7 +28,8 @@ namespace renderer {
         {0, 0},
         {1, 0},
         {2, 0},
-        {3, 0}
+        {3, 0},
+        {15, 15},
     };
 
     class TextureManager {

@@ -13,7 +13,8 @@ enum class BlockTypeID : uint8_t {
     GRASS = 0,
     STONE = 1,
     DIRT = 2,
-    EMPTY = 3,
+    WATER = 3,
+    EMPTY = 4,
     COUNT
 };
 

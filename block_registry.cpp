@@ -14,6 +14,7 @@ void BlockRegistry::initialize() {
     create_grass_block();
     create_dirt_block();
     create_stone_block();
+    create_water_block();
 }
 
 void BlockRegistry::create_grass_block() {
@@ -49,6 +50,20 @@ void BlockRegistry::create_stone_block() {
 
     BlockTextures textures{};
     textures.left = renderer::TextureManager::get_texture_coordinate(renderer::TextureType::STONE);
+    textures.bottom = textures.left;
+    textures.top = textures.left;
+    textures.right = textures.left;
+    textures.front = textures.left;
+    textures.back = textures.right;
+
+    block.textures = textures;
+}
+
+void BlockRegistry::create_water_block() {
+    BlockType &block = m_blocks[static_cast<int>(BlockTypeID::WATER)];
+
+    BlockTextures textures{};
+    textures.left = renderer::TextureManager::get_texture_coordinate(renderer::TextureType::WATER);
     textures.bottom = textures.left;
     textures.top = textures.left;
     textures.right = textures.left;
