@@ -87,17 +87,13 @@ void World::update_chunks() {
     std::swap(m_new_chunks, m_old_chunks);
     m_new_chunks.clear();
 
-    int total_chunks = (2 * SIMULATION_RADIUS + 1) * (2 * SIMULATION_RADIUS + 1) * (2 * SIMULATION_RADIUS + 1);
+    constexpr int total_chunks = (2 * SIMULATION_RADIUS + 1) * (2 * SIMULATION_RADIUS + 1) * (
+                                     2 * SIMULATION_RADIUS + 1);
     m_new_chunks.resize(total_chunks);
 
-    for (auto &chunk: m_new_chunks) {
-        chunk.set_unintialized(true);
-    }
-
-    // TODO: Make sure we are not leaking VRAM
     for (auto &chunk: m_old_chunks) {
         if (is_chunk_out_of_range(chunk.position(), m_player_chunk_position)) {
-            renderer::ChunkMesh* mesh = chunk.get_mesh();
+            renderer::ChunkMesh *mesh = chunk.get_mesh();
             if (mesh) {
                 delete_chunk_mesh(mesh);
             }
