@@ -36,9 +36,9 @@ public:
 
     void set_position(const glm::vec3& position);
 
-    [[nodiscard]] renderer::ChunkMesh* get_opaque_mesh() const;
+    [[nodiscard]] renderer::ChunkMesh* get_mesh() const;
 
-    void set_opaque_mesh(renderer::ChunkMesh* mesh);
+    void set_mesh(renderer::ChunkMesh* mesh);
 
     [[nodiscard]] bool coordinate_in_bounds(int x, int y, int z) const;
 
@@ -54,7 +54,7 @@ private:
 
     int m_num_blocks = 0;
     std::array<Block, CHUNK_HEIGHT * CHUNK_WIDTH * CHUNK_LENGTH> m_blocks;
-    renderer::ChunkMesh* m_opaque_mesh = nullptr;
+    renderer::ChunkMesh* m_mesh = nullptr;
 };
 
 inline glm::vec3 world_position_to_chunk_position(const glm::vec3 &world_position) {

@@ -106,20 +106,27 @@ void Minecraft::render() {
     m_renderer.begin_frame();
     glm::mat4 view = m_camera.view_matrix();
 
-    std::vector<Chunk>& chunks = m_world.get_chunks();
+    std::vector<Chunk> &chunks = m_world.get_chunks();
     int meshes_created = 0;
     constexpr int MAX_MESHES_PER_FRAME = 5;
 
     for (auto &chunk: chunks) {
-        if (!chunk.get_opaque_mesh() && meshes_created < MAX_MESHES_PER_FRAME && chunk.get_block_count() > 0) {
+        if (!chunk.get_mesh() && meshes_created < MAX_MESHES_PER_FRAME && chunk.get_block_count() > 0) {
             renderer::ChunkMesh *chunk_mesh = renderer::create_chunk_mesh(chunk, m_world);
-            chunk.set_opaque_mesh(chunk_mesh);
+            chunk.set_mesh(chunk_mesh);
             meshes_created++;
         }
 
-        if (chunk.get_opaque_mesh()) {
-            renderer::ChunkMesh *chunk_mesh = chunk.get_opaque_mesh();
-            m_renderer.render_chunk(*chunk_mesh, view);
+        if (chunk.get_mesh()) {
+            renderer::ChunkMesh *chunk_mesh = chunk.get_mesh();
+            m_renderer.render_chunk(*chunk_mesh, view, false);
+        }
+    }
+
+    for (auto &chunk: chunks) {
+        if (chunk.get_mesh()) {
+            renderer::ChunkMesh *chunk_mesh = chunk.get_mesh();
+            m_renderer.render_chunk(*chunk_mesh, view, true);
         }
     }
 }

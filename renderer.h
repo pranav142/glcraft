@@ -27,7 +27,7 @@ namespace renderer {
 
         void enable_culling();
 
-        void render_chunk(const ChunkMesh &chunk_mesh, const glm::mat4 &view_mat) const;
+        void render_chunk(const ChunkMesh &chunk_mesh, const glm::mat4 &view_mat, bool is_transparent) const;
 
     private:
         void update_projection_matrix(int width, int height);

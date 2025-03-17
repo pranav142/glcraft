@@ -97,7 +97,7 @@ void World::update_chunks() {
     // TODO: Make sure we are not leaking VRAM
     for (auto &chunk: m_old_chunks) {
         if (is_chunk_out_of_range(chunk.position(), m_player_chunk_position)) {
-            renderer::ChunkMesh* mesh = chunk.get_opaque_mesh();
+            renderer::ChunkMesh* mesh = chunk.get_mesh();
             if (mesh) {
                 delete_chunk_mesh(mesh);
             }

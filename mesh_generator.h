@@ -94,8 +94,11 @@ namespace renderer {
                          Direction direction,
                          Block block, glm::vec3 block_position);
 
-    static void fill_chunk_vertex_and_index_buffer(std::vector<float> &vertex_buffer,
-                                                   std::vector<uint32_t> &index_buffer, const Chunk &chunk,
+    static void fill_chunk_vertex_and_index_buffer(std::vector<float> &opaque_vertex_buffer,
+                                                   std::vector<uint32_t> &opaque_index_buffer,
+                                                   std::vector<float> &transparent_vertex_buffer,
+                                                   std::vector<uint32_t> &transparent_index_buffer,
+                                                   const Chunk &chunk,
                                                    const World &world);
 
     static AtlasTextureCoordinates get_block_texture_coordinates(Block &block, Direction direction);
@@ -104,7 +107,10 @@ namespace renderer {
 
     static Block get_block(int x, int y, int z, const Chunk &chunk, const World &world);
 
-    static void initialize_opqaue_mesh(ChunkMesh* mesh, const std::vector<float>& vertex_buffer, const std::vector<uint32_t>& index_buffer);
+    static void initialize_opqaue_mesh(Mesh &mesh, const std::vector<float> &vertex_buffer,
+                                       const std::vector<uint32_t> &index_buffer);
+
+    static bool should_add_face(const Block &adjacent_block, const Block &block);
 };
 
 

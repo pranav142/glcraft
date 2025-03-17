@@ -42,16 +42,16 @@ void Chunk::set_position(const glm::vec3 &position) {
     m_position = position;
 }
 
-renderer::ChunkMesh *Chunk::get_opaque_mesh() const {
-    return m_opaque_mesh;
+renderer::ChunkMesh *Chunk::get_mesh() const {
+    return m_mesh;
+}
+
+void Chunk::set_mesh(renderer::ChunkMesh *mesh) {
+    m_mesh = mesh;
 }
 
 int Chunk::calculate_index(int x, int y, int z) const {
     return x * CHUNK_WIDTH * CHUNK_HEIGHT + y * CHUNK_WIDTH + z;
-}
-
-void Chunk::set_opaque_mesh(renderer::ChunkMesh *mesh) {
-    m_opaque_mesh = mesh;
 }
 
 bool Chunk::coordinate_in_bounds(int x, int y, int z) const {

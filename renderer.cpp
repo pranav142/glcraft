@@ -19,10 +19,9 @@ void renderer::Renderer::resize(int width, int height) {
 }
 
 void renderer::Renderer::begin_frame() {
-    glEnable(GL_DEPTH_TEST);
-
     glClearColor(0.2f, 0.3f, 0.8f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
 }
 
 void renderer::Renderer::enable_wireframe() {
@@ -35,7 +34,8 @@ void renderer::Renderer::enable_culling() {
     glFrontFace(GL_CCW);
 }
 
-void renderer::Renderer::render_chunk(const renderer::ChunkMesh &chunk_mesh, const glm::mat4 &view_matrix) const {
+void renderer::Renderer::render_chunk(const renderer::ChunkMesh &chunk_mesh, const glm::mat4 &view_matrix,
+                                      bool is_transparent) const {
     m_block_shader.use();
 
     m_texture_manager.bind_texture();
@@ -47,8 +47,17 @@ void renderer::Renderer::render_chunk(const renderer::ChunkMesh &chunk_mesh, con
     auto model_matrix = glm::mat4(1.0f);
     m_block_shader.set_matrix("model", model_matrix);
 
-    glBindVertexArray(chunk_mesh.opaque_mesh.VAO);
-    glDrawElements(GL_TRIANGLES, chunk_mesh.opaque_mesh.num_indices, GL_UNSIGNED_INT, 0);
+    if (is_transparent && chunk_mesh.transparent_mesh.num_indices > 0) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBindVertexArray(chunk_mesh.transparent_mesh.VAO);
+        glDrawElements(GL_TRIANGLES, chunk_mesh.transparent_mesh.num_indices, GL_UNSIGNED_INT, 0);
+       glDepthMask(GL_TRUE);
+        glDisable(GL_BLEND);
+    } else {
+        glBindVertexArray(chunk_mesh.opaque_mesh.VAO);
+        glDrawElements(GL_TRIANGLES, chunk_mesh.opaque_mesh.num_indices, GL_UNSIGNED_INT, 0);
+    }
 }
 
 void renderer::Renderer::update_projection_matrix(int width, int height) {

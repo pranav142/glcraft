@@ -30,6 +30,7 @@ struct BlockTextures {
 class BlockType {
 public:
     BlockTextures textures;
+    bool is_transparent = false;
 };
 
 Block create_block(BlockTypeID);

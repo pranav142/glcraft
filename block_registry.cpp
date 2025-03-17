@@ -29,6 +29,7 @@ void BlockRegistry::create_grass_block() {
     textures.back = textures.right;
 
     block.textures = textures;
+    block.is_transparent = false;
 }
 
 void BlockRegistry::create_dirt_block() {
@@ -43,6 +44,7 @@ void BlockRegistry::create_dirt_block() {
     textures.back = textures.right;
 
     block.textures = textures;
+    block.is_transparent = false;
 }
 
 void BlockRegistry::create_stone_block() {
@@ -57,6 +59,7 @@ void BlockRegistry::create_stone_block() {
     textures.back = textures.right;
 
     block.textures = textures;
+    block.is_transparent = false;
 }
 
 void BlockRegistry::create_water_block() {
@@ -71,4 +74,5 @@ void BlockRegistry::create_water_block() {
     textures.back = textures.right;
 
     block.textures = textures;
+    block.is_transparent = true;
 }

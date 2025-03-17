@@ -11,8 +11,6 @@
 #include "texture_manager.h"
 #include "timer.h"
 
-// TODO: Passing In World is bad practice
-// TODO: Adjust to take in neighboring blocks
 renderer::ChunkMesh *renderer::create_chunk_mesh(const Chunk &chunk, const World &world) {
     std::vector<float> opaque_vertex_buffer;
     std::vector<uint32_t> opaque_index_buffer;
@@ -23,15 +21,17 @@ renderer::ChunkMesh *renderer::create_chunk_mesh(const Chunk &chunk, const World
     std::vector<float> transparent_vertex_buffer;
     std::vector<uint32_t> transparent_index_buffer;
 
-    fill_chunk_vertex_and_index_buffer(opaque_vertex_buffer, opaque_index_buffer, chunk, world);
+    fill_chunk_vertex_and_index_buffer(opaque_vertex_buffer, opaque_index_buffer, transparent_vertex_buffer,
+                                       transparent_index_buffer, chunk, world);
 
     auto chunk_mesh = new ChunkMesh();
-    initialize_opqaue_mesh(chunk_mesh, opaque_vertex_buffer, opaque_index_buffer);
+    initialize_opqaue_mesh(chunk_mesh->opaque_mesh, opaque_vertex_buffer, opaque_index_buffer);
+    initialize_opqaue_mesh(chunk_mesh->transparent_mesh, transparent_vertex_buffer, transparent_index_buffer);
     chunk_mesh->position = chunk.position();
     return chunk_mesh;
 }
 
-void renderer::initialize_opqaue_mesh(ChunkMesh *chunk_mesh, const std::vector<float> &vertex_buffer,
+void renderer::initialize_opqaue_mesh(Mesh& mesh, const std::vector<float> &vertex_buffer,
                                       const std::vector<uint32_t> &index_buffer) {
     if (vertex_buffer.empty() || index_buffer.empty()) {
         return;
@@ -60,10 +60,10 @@ void renderer::initialize_opqaue_mesh(ChunkMesh *chunk_mesh, const std::vector<f
     glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (5 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    chunk_mesh->opaque_mesh.EBO = EBO;
-    chunk_mesh->opaque_mesh.VBO = VBO;
-    chunk_mesh->opaque_mesh.VAO = VAO;
-    chunk_mesh->opaque_mesh.num_indices = index_buffer.size();
+    mesh.EBO = EBO;
+    mesh.VBO = VBO;
+    mesh.VAO = VAO;
+    mesh.num_indices = index_buffer.size();
 }
 
 
@@ -113,8 +113,30 @@ void renderer::add_face(std::vector<float> &vertex_buffer, std::vector<uint32_t>
     index_buffer.push_back(vertex_count);
 }
 
-void renderer::fill_chunk_vertex_and_index_buffer(std::vector<float> &vertex_buffer,
-                                                  std::vector<uint32_t> &index_buffer, const Chunk &chunk,
+bool renderer::should_add_face(const Block &adjacent_block, const Block &block) {
+    if (adjacent_block.type == BlockTypeID::EMPTY) {
+        return true;
+    }
+
+    bool is_adjacent_transparent = BlockRegistry::get_block(adjacent_block.type).is_transparent;
+    bool is_current_transparent = BlockRegistry::get_block(block.type).is_transparent;
+
+    if (!is_current_transparent && is_adjacent_transparent) {
+        return true;
+    }
+
+    if (is_current_transparent && is_adjacent_transparent && block.type != adjacent_block.type) {
+        return true;
+    }
+
+    return false;
+}
+
+void renderer::fill_chunk_vertex_and_index_buffer(std::vector<float> &opaque_vertex_buffer,
+                                                  std::vector<uint32_t> &opaque_index_buffer,
+                                                  std::vector<float> &transparent_vertex_buffer,
+                                                  std::vector<uint32_t> &transparent_index_buffer,
+                                                  const Chunk &chunk,
                                                   const World &world) {
     // Checks Adjacent Blocks and only
     // adds vertices that are not covered
@@ -127,34 +149,39 @@ void renderer::fill_chunk_vertex_and_index_buffer(std::vector<float> &vertex_buf
                     continue;
                 }
 
+                bool is_transparent = BlockRegistry::get_block(block.type).is_transparent;
+
+                std::vector<float> &vertex_buffer = is_transparent ? transparent_vertex_buffer : opaque_vertex_buffer;
+                std::vector<uint32_t> &index_buffer = is_transparent ? transparent_index_buffer : opaque_index_buffer;
+
                 glm::vec3 block_position = glm::vec3(i, j, k) + chunk.position();
                 auto top_block = renderer::get_block(i, j + 1, k, chunk, world);
-                if (top_block.type == BlockTypeID::EMPTY) {
+                if (should_add_face(top_block, block)) {
                     add_face(vertex_buffer, index_buffer, Direction::UP, block, block_position);
                 }
 
                 auto bottom_block = renderer::get_block(i, j - 1, k, chunk, world);
-                if (bottom_block.type == BlockTypeID::EMPTY) {
+                if (should_add_face(bottom_block, block)) {
                     add_face(vertex_buffer, index_buffer, Direction::DOWN, block, block_position);
                 }
 
                 auto right_block = renderer::get_block(i + 1, j, k, chunk, world);
-                if (right_block.type == BlockTypeID::EMPTY) {
+                if (should_add_face(right_block, block)) {
                     add_face(vertex_buffer, index_buffer, Direction::RIGHT, block, block_position);
                 }
 
                 auto left_block = renderer::get_block(i - 1, j, k, chunk, world);
-                if (left_block.type == BlockTypeID::EMPTY) {
+                if (should_add_face(left_block, block)) {
                     add_face(vertex_buffer, index_buffer, Direction::LEFT, block, block_position);
                 }
 
                 auto front_block = renderer::get_block(i, j, k + 1, chunk, world);
-                if (front_block.type == BlockTypeID::EMPTY) {
+                if (should_add_face(front_block, block)) {
                     add_face(vertex_buffer, index_buffer, Direction::FRONT, block, block_position);
                 }
 
                 auto back_block = renderer::get_block(i, j, k - 1, chunk, world);
-                if (back_block.type == BlockTypeID::EMPTY) {
+                if (should_add_face(back_block, block)) {
                     add_face(vertex_buffer, index_buffer, Direction::BACK, block, block_position);
                 }
             }
