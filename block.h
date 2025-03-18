@@ -15,11 +15,12 @@ enum class BlockTypeID : uint8_t {
     DIRT = 2,
     WATER = 3,
     EMPTY = 4,
+    AIR = 5,
     COUNT
 };
 
 struct Block {
-    BlockTypeID type = BlockTypeID::EMPTY;
+    BlockTypeID type = BlockTypeID::AIR;
 };
 
 // Stores Textures Of All Sides

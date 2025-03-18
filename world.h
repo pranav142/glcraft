@@ -22,7 +22,7 @@ namespace std {
     };
 }
 
-static constexpr int SIMULATION_RADIUS = 6;
+static constexpr int SIMULATION_RADIUS = 8;
 
 class World {
 public:

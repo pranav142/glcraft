@@ -114,7 +114,12 @@ void renderer::add_face(std::vector<float> &vertex_buffer, std::vector<uint32_t>
 }
 
 bool renderer::should_add_face(const Block &adjacent_block, const Block &block) {
+    // Don't add faces when facing un-rendered chunks
     if (adjacent_block.type == BlockTypeID::EMPTY) {
+        return false;
+    }
+
+    if (adjacent_block.type == BlockTypeID::AIR) {
         return true;
     }
 
@@ -145,7 +150,7 @@ void renderer::fill_chunk_vertex_and_index_buffer(std::vector<float> &opaque_ver
         for (int j = 0; j < CHUNK_HEIGHT; j++) {
             for (int k = 0; k < CHUNK_LENGTH; k++) {
                 auto block = chunk.get_block(i, j, k);
-                if (block.type == BlockTypeID::EMPTY) {
+                if (block.type == BlockTypeID::AIR) {
                     continue;
                 }
 

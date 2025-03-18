@@ -22,6 +22,7 @@ void renderer::Renderer::begin_frame() {
     glClearColor(0.2f, 0.3f, 0.8f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
 }
 
 void renderer::Renderer::enable_wireframe() {
@@ -48,18 +49,18 @@ void renderer::Renderer::render_chunk(const renderer::ChunkMesh &chunk_mesh, con
     m_block_shader.set_matrix("model", model_matrix);
 
     if (is_transparent && chunk_mesh.transparent_mesh.num_indices > 0) {
+        // glDepthMask(GL_FALSE);
+        glDisable(GL_CULL_FACE);
+
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        glDepthMask(GL_FALSE);
-        glDisable(GL_CULL_FACE);
 
         glBindVertexArray(chunk_mesh.transparent_mesh.VAO);
         glDrawElements(GL_TRIANGLES, chunk_mesh.transparent_mesh.num_indices, GL_UNSIGNED_INT, 0);
 
-        glDepthMask(GL_TRUE);
-        glDisable(GL_BLEND);
         glEnable(GL_CULL_FACE);
+        glDisable(GL_BLEND);
+        // glDepthMask(GL_TRUE);
     } else {
         glBindVertexArray(chunk_mesh.opaque_mesh.VAO);
         glDrawElements(GL_TRIANGLES, chunk_mesh.opaque_mesh.num_indices, GL_UNSIGNED_INT, 0);
@@ -67,7 +68,7 @@ void renderer::Renderer::render_chunk(const renderer::ChunkMesh &chunk_mesh, con
 }
 
 void renderer::Renderer::update_projection_matrix(int width, int height) {
-    m_projection_matrix = glm::perspective(glm::radians(45.0f),
+    m_projection_matrix = glm::perspective(glm::radians(120.0f),
                                            static_cast<float>(width) / static_cast<float>(height), 0.1f,
                                            700.0f);
 }

@@ -12,7 +12,10 @@ void WorldGenerator::generate_chunk(Chunk &chunk) const {
     for (int z = 0; z < CHUNK_LENGTH; z++) {
         for (int x = 0; x < CHUNK_WIDTH; x++) {
             // TODO: @Speed use heightmaps to cache this value
-            float noise = m_noise.GetNoise(chunk.position().x + x, chunk.position().z + z);
+            float nx = chunk.position().x + x;
+            float nz = chunk.position().z + z;
+
+            float noise = m_noise.GetNoise(0.25 + nx, 0.25 + nz);
 
             int height = (noise + 1) * 120;
             constexpr int water_level = 120;

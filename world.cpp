@@ -91,6 +91,10 @@ void World::update_chunks() {
                                      2 * SIMULATION_RADIUS + 1);
     m_new_chunks.resize(total_chunks);
 
+    for (auto &chunk: m_new_chunks) {
+        chunk.set_unintialized(true);
+    }
+
     for (auto &chunk: m_old_chunks) {
         if (is_chunk_out_of_range(chunk.position(), m_player_chunk_position)) {
             renderer::ChunkMesh *mesh = chunk.get_mesh();
@@ -114,11 +118,32 @@ void World::update_chunks() {
                     m_player_chunk_position.z + (z * CHUNK_LENGTH)
                 );
 
+
                 int index = chunk_position_to_index(chunk_position);
+                Chunk &chunk = m_new_chunks[index];
                 if (index == -1) continue;
 
-                if (m_new_chunks[index].is_uninitialized()) {
-                    load_chunk(m_new_chunks[index], chunk_position);
+                chunk.set_distance(glm::distance(m_player_chunk_position, chunk_position));
+
+                if (chunk.is_uninitialized()) {
+                    load_chunk(chunk, chunk_position);
+
+                    // Remesh Neighboring Chunks
+                    glm::vec3 neighbor_positions[6] = {
+                        chunk_position + glm::vec3(CHUNK_WIDTH, 0, 0),
+                        chunk_position - glm::vec3(CHUNK_WIDTH, 0, 0),
+                        chunk_position + glm::vec3(0, CHUNK_HEIGHT, 0),
+                        chunk_position - glm::vec3(0, CHUNK_HEIGHT, 0),
+                        chunk_position + glm::vec3(0, 0, CHUNK_LENGTH),
+                        chunk_position - glm::vec3(0, 0, CHUNK_LENGTH)
+                    };
+
+                    for (const auto &neighbor_pos: neighbor_positions) {
+                        int neighbor_index = chunk_position_to_index(neighbor_pos);
+                        if (neighbor_index != -1) {
+                            m_new_chunks[neighbor_index].set_needs_remesh(true);
+                        }
+                    }
                 }
             }
         }

@@ -111,9 +111,10 @@ void Minecraft::render() {
     constexpr int MAX_MESHES_PER_FRAME = 5;
 
     for (auto &chunk: chunks) {
-        if (!chunk.get_mesh() && meshes_created < MAX_MESHES_PER_FRAME && chunk.get_block_count() > 0) {
+        if (chunk.needs_remesh() && meshes_created < MAX_MESHES_PER_FRAME && chunk.get_block_count() > 0) {
             renderer::ChunkMesh *chunk_mesh = renderer::create_chunk_mesh(chunk, m_world);
             chunk.set_mesh(chunk_mesh);
+            chunk.set_needs_remesh(false);
             meshes_created++;
         }
 
@@ -124,9 +125,9 @@ void Minecraft::render() {
     }
 
     for (auto &chunk: chunks) {
-        if (chunk.get_mesh()) {
-            renderer::ChunkMesh *chunk_mesh = chunk.get_mesh();
-            m_renderer.render_chunk(*chunk_mesh, view, true);
+        if (chunk.get_mesh() && chunk.get_mesh()->transparent_mesh.num_indices > 0) {
+            auto mesh = chunk.get_mesh();
+            m_renderer.render_chunk(*mesh, view, true);
         }
     }
 }
@@ -139,7 +140,7 @@ void Minecraft::process_input() {
     if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(m_window, true);
 
-    float camera_speed = 5.0f * m_delta_time;
+    float camera_speed = 20.0f * m_delta_time;
 
     if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS)
         m_camera.move(CameraDirection::FORWARD, camera_speed);
