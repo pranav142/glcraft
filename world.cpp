@@ -58,7 +58,7 @@ bool World::is_chunk_out_of_range(const glm::vec3 &chunk_position, const glm::ve
 void World::load_chunk(Chunk &chunk, const glm::vec3 &chunk_position) {
     chunk.set_position(chunk_position);
     m_world_generator.generate_chunk(chunk);
-    chunk.set_unintialized(false);
+    chunk.set_state(Chunk::State::REMESH);
 }
 
 int World::chunk_position_to_index(const glm::vec3 &chunk_position) const {
@@ -92,7 +92,7 @@ void World::update_chunks() {
     m_new_chunks.resize(total_chunks);
 
     for (auto &chunk: m_new_chunks) {
-        chunk.set_unintialized(true);
+        chunk.set_state(Chunk::State::REGENERATE);
     }
 
     for (auto &chunk: m_old_chunks) {
@@ -125,7 +125,7 @@ void World::update_chunks() {
 
                 chunk.set_distance(glm::distance(m_player_chunk_position, chunk_position));
 
-                if (chunk.is_uninitialized()) {
+                if (chunk.get_state() == Chunk::State::REGENERATE) {
                     load_chunk(chunk, chunk_position);
 
                     // Remesh Neighboring Chunks
@@ -141,7 +141,9 @@ void World::update_chunks() {
                     for (const auto &neighbor_pos: neighbor_positions) {
                         int neighbor_index = chunk_position_to_index(neighbor_pos);
                         if (neighbor_index != -1) {
-                            m_new_chunks[neighbor_index].set_needs_remesh(true);
+                            if (m_new_chunks[neighbor_index].get_state() == Chunk::State::READY) {
+                                m_new_chunks[neighbor_index].set_state(Chunk::State::REMESH);
+                            }
                         }
                     }
                 }

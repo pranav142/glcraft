@@ -25,14 +25,6 @@ void Chunk::set_distance(float distance) {
     m_distance = distance;
 }
 
-bool Chunk::needs_remesh() const {
-    return m_needs_remesh;
-}
-
-void Chunk::set_needs_remesh(bool remesh) {
-    m_needs_remesh = remesh;
-}
-
 void Chunk::set_block(int x, int y, int z, const Block &block) {
     int index = calculate_index(x, y, z);
     if (index > m_blocks.size() || !coordinate_in_bounds(x, y, z)) {
@@ -78,10 +70,9 @@ bool Chunk::coordinate_in_bounds(int x, int y, int z) const {
     return (x < CHUNK_WIDTH && y < CHUNK_HEIGHT && z < CHUNK_LENGTH && x >= 0 && y >= 0 && z >= 0);
 }
 
-bool Chunk::is_uninitialized() const {
-    return m_is_uninitialized;
+Chunk::State Chunk::get_state() const {
+    return m_state;
 }
-
-void Chunk::set_unintialized(bool flag) {
-    m_is_uninitialized = flag;
+void Chunk::set_state(Chunk::State state) {
+    m_state = state;
 }

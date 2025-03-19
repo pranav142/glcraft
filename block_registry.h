@@ -13,6 +13,7 @@ public:
         initialize();
     };
 
+    // TODO: @Clarity Rename this: it is not returning a block
     static const BlockType &get_block(BlockTypeID id);
 
 
