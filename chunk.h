@@ -82,6 +82,7 @@ private:
     float m_distance = 0.0f;
 
     std::array<Block, CHUNK_HEIGHT * CHUNK_WIDTH * CHUNK_LENGTH> *m_blocks = nullptr;
+    // TODO: @Speed does this need to be on the heap
     renderer::ChunkMesh *m_mesh = nullptr;
 };
 

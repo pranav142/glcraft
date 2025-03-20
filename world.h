@@ -22,7 +22,7 @@ namespace std {
     };
 }
 
-static constexpr int SIMULATION_RADIUS = 16;
+static constexpr int SIMULATION_RADIUS = 8;
 
 constexpr int TOTAL_CHUNKS = (2 * SIMULATION_RADIUS + 1) * (2 * SIMULATION_RADIUS + 1) * (
                              2 * SIMULATION_RADIUS + 1);
@@ -56,8 +56,8 @@ private:
     void update_chunks();
 
 private:
-    std::array<Chunk, TOTAL_CHUNKS> m_new_chunks;
-    std::array<Chunk, TOTAL_CHUNKS> m_old_chunks;
+    std::array<Chunk, TOTAL_CHUNKS> *m_new_chunks = new std::array<Chunk, TOTAL_CHUNKS>;
+    std::array<Chunk, TOTAL_CHUNKS> *m_old_chunks = new std::array<Chunk, TOTAL_CHUNKS>;
 
     WorldGenerator m_world_generator = WorldGenerator(1000);
 

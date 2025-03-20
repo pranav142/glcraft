@@ -13,8 +13,11 @@ const BlockType &BlockRegistry::get_block(BlockTypeID id) {
 void BlockRegistry::initialize() {
     create_grass_block();
     create_dirt_block();
+    create_sand_block();
     create_stone_block();
     create_water_block();
+    create_gravel_block();
+    create_snow_block();
 }
 
 void BlockRegistry::create_grass_block() {
@@ -75,4 +78,49 @@ void BlockRegistry::create_water_block() {
 
     block.textures = textures;
     block.is_transparent = true;
+}
+
+void BlockRegistry::create_sand_block() {
+    BlockType &block = m_blocks[static_cast<int>(BlockTypeID::SAND)];
+
+    BlockTextures textures{};
+    textures.left = renderer::TextureManager::get_texture_coordinate(renderer::TextureType::SAND);
+    textures.bottom = textures.left;
+    textures.top = textures.left;
+    textures.right = textures.left;
+    textures.front = textures.left;
+    textures.back = textures.right;
+
+    block.textures = textures;
+    block.is_transparent = false;
+}
+
+void BlockRegistry::create_gravel_block() {
+    BlockType &block = m_blocks[static_cast<int>(BlockTypeID::GRAVEL)];
+
+    BlockTextures textures{};
+    textures.left = renderer::TextureManager::get_texture_coordinate(renderer::TextureType::GRAVEL);
+    textures.bottom = textures.left;
+    textures.top = textures.left;
+    textures.right = textures.left;
+    textures.front = textures.left;
+    textures.back = textures.right;
+
+    block.textures = textures;
+    block.is_transparent = false;
+}
+
+void BlockRegistry::create_snow_block() {
+    BlockType &block = m_blocks[static_cast<int>(BlockTypeID::SNOW)];
+
+    BlockTextures textures{};
+    textures.left = renderer::TextureManager::get_texture_coordinate(renderer::TextureType::SNOW);
+    textures.bottom = textures.left;
+    textures.top = textures.left;
+    textures.right = textures.left;
+    textures.front = textures.left;
+    textures.back = textures.right;
+
+    block.textures = textures;
+    block.is_transparent = false;
 }

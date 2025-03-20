@@ -16,8 +16,6 @@ namespace renderer {
     struct Mesh {
         unsigned int VBO = 0, VAO = 0, EBO = 0;
         int num_indices = 0;
-        std::vector<uint32_t> index_buffer;
-        std::vector<float> vertex_buffer;
     };
 
     struct ChunkMesh {
@@ -32,42 +30,36 @@ namespace renderer {
     };
 
     static const FaceTemplate FACE_TEMPLATES[6] = {
-        // UP
         {
             0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
             0.5f, 0.5f, -0.5f, 1.0f, 0.0f,
             -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
             -0.5f, 0.5f, 0.5f, 0.0f, 1.0f
         },
-        // DOWN
         {
             -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
             0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
             0.5f, -0.5f, 0.5f, 1.0f, 1.0f,
             -0.5f, -0.5f, 0.5f, 0.0f, 1.0f
         },
-        // LEFT
         {
             -0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
             -0.5f, -0.5f, 0.5f, 0.0f, 1.0f,
             -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
             -0.5f, 0.5f, -0.5f, 1.0f, 0.0f
         },
-        // BACK
         {
             0.5f, 0.5f, -0.5f, 0.0f, 0.0f,
             0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
             -0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
             -0.5f, 0.5f, -0.5f, 1.0f, 0.0f
         },
-        // RIGHT
         {
             0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
             0.5f, -0.5f, 0.5f, 1.0f, 1.0f,
             0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
             0.5f, 0.5f, -0.5f, 0.0f, 0.0f
         },
-        // FRONT
         {
             -0.5f, -0.5f, 0.5f, 0.0f, 1.0f,
             0.5f, -0.5f, 0.5f, 1.0f, 1.0f,
@@ -97,11 +89,11 @@ namespace renderer {
                          Block block, glm::vec3 block_position);
 
     void fill_chunk_vertex_and_index_buffer(std::vector<float> &opaque_vertex_buffer,
-                                                   std::vector<uint32_t> &opaque_index_buffer,
-                                                   std::vector<float> &transparent_vertex_buffer,
-                                                   std::vector<uint32_t> &transparent_index_buffer,
-                                                   const Chunk &chunk,
-                                                   const World &world);
+                                            std::vector<uint32_t> &opaque_index_buffer,
+                                            std::vector<float> &transparent_vertex_buffer,
+                                            std::vector<uint32_t> &transparent_index_buffer,
+                                            const Chunk &chunk,
+                                            const World &world);
 
     static AtlasTextureCoordinates get_block_texture_coordinates(Block &block, Direction direction);
 
@@ -110,7 +102,7 @@ namespace renderer {
     static Block get_block(int x, int y, int z, const Chunk &chunk, const World &world);
 
     void initialize_mesh(Mesh &mesh, const std::vector<float> &vertex_buffer,
-                                       const std::vector<uint32_t> &index_buffer);
+                         const std::vector<uint32_t> &index_buffer);
 
     static bool should_add_face(const Block &adjacent_block, const Block &block);
 };

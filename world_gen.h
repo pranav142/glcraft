@@ -18,6 +18,10 @@ public:
     void generate_chunk(Chunk& chunk) const;
 
 private:
+    double noise(double nx, double nz) const;
+
+    double ridge_noise(double value, double ridge_factor) const;
+private:
     int m_seed = 0;
     FastNoiseLite m_noise = FastNoiseLite();
     std::vector<float> m_height_map = std::vector<float>(128 * 128);

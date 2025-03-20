@@ -27,6 +27,12 @@ private:
     static void create_stone_block();
 
     static void create_water_block();
+
+    static void create_sand_block();
+
+    static void create_gravel_block();
+
+    static void create_snow_block();
 private:
     static std::array<BlockType, static_cast<int>(BlockTypeID::COUNT)> m_blocks;
 };
