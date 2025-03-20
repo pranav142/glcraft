@@ -8,6 +8,7 @@
 #include <array>
 
 #include "block.h"
+#include "block_registry.h"
 
 namespace renderer {
     class ChunkMesh;
@@ -22,18 +23,25 @@ constexpr int CHUNK_LENGTH = 32;
 class Chunk {
 public:
     // these are global coordinates
-    Chunk() = default;
+    Chunk() {
+        initialize();
+    }
 
     Chunk(float x, float y, float z) : m_position(glm::vec3(x, y, z)) {
+        initialize();
     }
 
     // TODO: @Clarity it is cumbersome to force users to manage chunk state
     enum class State {
+        UNINITIALIZED = 0,
         REGENERATE,
         REMESH,
+        REMESHING,
+        REMESHED,
         READY,
     };
 
+    void clear_blocks();
     // x, y, z relative to chunk
     [[nodiscard]] const Block &get_block(int x, int y, int z) const;
 
@@ -58,17 +66,22 @@ public:
     State get_state() const;
 
     void set_state(State state);
+
+    void destroy();
+
 private:
+    void initialize();
+
     [[nodiscard]] int calculate_index(int x, int y, int z) const;
 
 private:
-    State m_state = State::REGENERATE;
+    State m_state = State::UNINITIALIZED;
 
     glm::vec3 m_position = glm::vec3(0, 0, 0);
     int m_num_blocks = 0;
     float m_distance = 0.0f;
 
-    std::array<Block, CHUNK_HEIGHT * CHUNK_WIDTH * CHUNK_LENGTH> m_blocks;
+    std::array<Block, CHUNK_HEIGHT * CHUNK_WIDTH * CHUNK_LENGTH> *m_blocks = nullptr;
     renderer::ChunkMesh *m_mesh = nullptr;
 };
 

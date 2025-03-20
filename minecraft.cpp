@@ -3,11 +3,11 @@
 //
 
 #include "minecraft.h"
-
 #include <iostream>
 #include "block_registry.h"
 #include "renderer.h"
 #include "mesh_generator.h"
+
 #include "timer.h"
 
 bool Minecraft::initialize() {
@@ -92,8 +92,9 @@ void Minecraft::run() {
         m_last_frame = m_current_frame;
 
         process_input();
-        update();
-        render();
+
+        TIME_FUNCTION(update(), "UPDATE");
+        TIME_FUNCTION(render(), "RENDER");
 
         glfwSwapBuffers(m_window);
         glfwPollEvents();
@@ -106,17 +107,56 @@ void Minecraft::render() {
     m_renderer.begin_frame();
     glm::mat4 view = m_camera.view_matrix();
 
-    std::vector<Chunk> &chunks = m_world.get_chunks();
+    auto &chunks = m_world.get_chunks();
     int meshes_created = 0;
     constexpr int MAX_MESHES_PER_FRAME = 5;
 
+    int generated = 0;
+    constexpr int MAX_GENERATED_PER_FRAME = 100;
+
     for (auto &chunk: chunks) {
-        if (chunk.get_state() == Chunk::State::REMESH && meshes_created < MAX_MESHES_PER_FRAME && chunk.
-            get_block_count() > 0) {
-            renderer::ChunkMesh *chunk_mesh = renderer::create_chunk_mesh(chunk, m_world);
-            chunk.set_mesh(chunk_mesh);
+        if (chunk.get_state() == Chunk::State::REGENERATE && generated < MAX_GENERATED_PER_FRAME) {
+            if (chunk.get_block_count() > 0) {
+                chunk.clear_blocks();
+            }
+            m_world_generator.generate_chunk(chunk);
+            chunk.set_state(Chunk::State::REMESH);
+            generated++;
+
+            glm::vec3 neighbor_positions[6] = {
+                chunk.position() + glm::vec3(CHUNK_WIDTH, 0, 0),
+                chunk.position() - glm::vec3(CHUNK_WIDTH, 0, 0),
+                chunk.position() + glm::vec3(0, CHUNK_HEIGHT, 0),
+                chunk.position() - glm::vec3(0, CHUNK_HEIGHT, 0),
+                chunk.position() + glm::vec3(0, 0, CHUNK_LENGTH),
+                chunk.position() - glm::vec3(0, 0, CHUNK_LENGTH)
+            };
+
+            for (const auto &neighbor_pos: neighbor_positions) {
+                auto chunk_opt = m_world.get_chunk(neighbor_pos);
+                if (!chunk_opt.has_value()) {
+                    continue;
+                }
+                auto neighbor = chunk_opt.value();
+                if (neighbor.get().get_state() == Chunk::State::READY) {
+                    m_world.set_chunk_state(Chunk::State::REMESH, neighbor_pos);
+                }
+            }
+        }
+
+        if (chunk.get_state() == Chunk::State::REMESH && meshes_created < MAX_MESHES_PER_FRAME) {
+            renderer::ChunkMesh *old_mesh = chunk.get_mesh();
+            if (old_mesh) {
+                delete_chunk_mesh(old_mesh);
+            }
+            chunk.set_mesh(nullptr);
+
+            if (chunk.get_block_count() > 0) {
+                renderer::ChunkMesh *chunk_mesh = renderer::create_chunk_mesh(chunk, m_world);
+                chunk.set_mesh(chunk_mesh);
+                meshes_created++;
+            }
             chunk.set_state(Chunk::State::READY);
-            meshes_created++;
         }
 
         if (chunk.get_state() == Chunk::State::READY && chunk.get_mesh()) {
@@ -126,9 +166,11 @@ void Minecraft::render() {
     }
 
     for (auto &chunk: chunks) {
-        if (chunk.get_state() == Chunk::State::READY && chunk.get_mesh()->transparent_mesh.num_indices > 0) {
-            auto mesh = chunk.get_mesh();
-            m_renderer.render_chunk(*mesh, view, true);
+        if (chunk.get_state() == Chunk::State::READY && chunk.get_mesh()) {
+            if (chunk.get_mesh()->transparent_mesh.num_indices > 0) {
+                renderer::ChunkMesh *chunk_mesh = chunk.get_mesh();
+                m_renderer.render_chunk(*chunk_mesh, view, true);
+            }
         }
     }
 }
@@ -138,8 +180,9 @@ void Minecraft::update() {
 }
 
 void Minecraft::process_input() {
-    if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(m_window, true);
+    }
 
     float camera_speed = 20.0f * m_delta_time;
 

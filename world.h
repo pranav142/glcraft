@@ -22,22 +22,26 @@ namespace std {
     };
 }
 
-static constexpr int SIMULATION_RADIUS = 8;
+static constexpr int SIMULATION_RADIUS = 16;
+
+constexpr int TOTAL_CHUNKS = (2 * SIMULATION_RADIUS + 1) * (2 * SIMULATION_RADIUS + 1) * (
+                             2 * SIMULATION_RADIUS + 1);
+
 
 class World {
 public:
     World() {
-        m_new_chunks.reserve((2 * SIMULATION_RADIUS + 1) * (2 * SIMULATION_RADIUS + 1) * (2 * SIMULATION_RADIUS + 1));
-        m_old_chunks.reserve((2 * SIMULATION_RADIUS + 1) * (2 * SIMULATION_RADIUS + 1) * (2 * SIMULATION_RADIUS + 1));
     };
 
     void initialize(const glm::vec3 &player_position);
 
-    std::optional<std::reference_wrapper<const Chunk>> get_chunk(const glm::vec3 &position) const;
+    std::optional<std::reference_wrapper<const Chunk> > get_chunk(const glm::vec3 &position) const;
+
+    void set_chunk_state(Chunk::State state, const glm::vec3 &position);
 
     void update(const glm::vec3 &player_position);
 
-    [[nodiscard]] std::vector<Chunk> &get_chunks();
+    [[nodiscard]] std::array<Chunk, TOTAL_CHUNKS> &get_chunks();
 
 private:
     [[nodiscard]] bool is_chunk_loaded(const glm::vec3 &chunk_position) const;
@@ -45,15 +49,15 @@ private:
     [[nodiscard]] bool is_chunk_out_of_range(const glm::vec3 &chunk_position,
                                              const glm::vec3 &player_chunk_position) const;
 
-    void load_chunk(::Chunk &chunk, const glm::vec3 & chunk_position);
+    void load_chunk(::Chunk &chunk, const glm::vec3 &chunk_position);
 
-    int chunk_position_to_index(const glm::vec3& chunk_position) const;
+    int chunk_position_to_index(const glm::vec3 &chunk_position) const;
 
     void update_chunks();
 
 private:
-    std::vector<Chunk> m_new_chunks;
-    std::vector<Chunk> m_old_chunks;
+    std::array<Chunk, TOTAL_CHUNKS> m_new_chunks;
+    std::array<Chunk, TOTAL_CHUNKS> m_old_chunks;
 
     WorldGenerator m_world_generator = WorldGenerator(1000);
 

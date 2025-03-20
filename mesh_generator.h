@@ -16,6 +16,8 @@ namespace renderer {
     struct Mesh {
         unsigned int VBO = 0, VAO = 0, EBO = 0;
         int num_indices = 0;
+        std::vector<uint32_t> index_buffer;
+        std::vector<float> vertex_buffer;
     };
 
     struct ChunkMesh {
@@ -94,7 +96,7 @@ namespace renderer {
                          Direction direction,
                          Block block, glm::vec3 block_position);
 
-    static void fill_chunk_vertex_and_index_buffer(std::vector<float> &opaque_vertex_buffer,
+    void fill_chunk_vertex_and_index_buffer(std::vector<float> &opaque_vertex_buffer,
                                                    std::vector<uint32_t> &opaque_index_buffer,
                                                    std::vector<float> &transparent_vertex_buffer,
                                                    std::vector<uint32_t> &transparent_index_buffer,
@@ -107,7 +109,7 @@ namespace renderer {
 
     static Block get_block(int x, int y, int z, const Chunk &chunk, const World &world);
 
-    static void initialize_mesh(Mesh &mesh, const std::vector<float> &vertex_buffer,
+    void initialize_mesh(Mesh &mesh, const std::vector<float> &vertex_buffer,
                                        const std::vector<uint32_t> &index_buffer);
 
     static bool should_add_face(const Block &adjacent_block, const Block &block);

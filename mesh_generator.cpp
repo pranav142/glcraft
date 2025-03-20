@@ -21,6 +21,9 @@ renderer::ChunkMesh *renderer::create_chunk_mesh(const Chunk &chunk, const World
     std::vector<float> transparent_vertex_buffer;
     std::vector<uint32_t> transparent_index_buffer;
 
+    transparent_vertex_buffer.reserve(40000);
+    transparent_index_buffer.reserve(10000);
+
     fill_chunk_vertex_and_index_buffer(opaque_vertex_buffer, opaque_index_buffer, transparent_vertex_buffer,
                                        transparent_index_buffer, chunk, world);
 

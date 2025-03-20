@@ -5,12 +5,27 @@
 #include "chunk.h"
 #include "mesh_generator.h"
 
+void Chunk::initialize() {
+    m_blocks = new std::array<Block, CHUNK_HEIGHT * CHUNK_WIDTH * CHUNK_LENGTH>();
+}
+
+void Chunk::clear_blocks() {
+    for (int x = 0; x < CHUNK_WIDTH; x++) {
+        for (int y = 0; y < CHUNK_HEIGHT; y++) {
+            for (int z = 0; z < CHUNK_LENGTH; z++) {
+                Block air_block = create_block(BlockTypeID::AIR);
+                set_block(x, y, z, air_block);
+            }
+        }
+    }
+}
+
 const Block &Chunk::get_block(int x, int y, int z) const {
     int index = calculate_index(x, y, z);
-    if (index > m_blocks.size() || !coordinate_in_bounds(x, y, z)) {
+    if (index > m_blocks->size() || !coordinate_in_bounds(x, y, z)) {
         return renderer::empty_block;
     }
-    return m_blocks[index];
+    return (*m_blocks)[index];
 }
 
 const int &Chunk::get_block_count() const {
@@ -27,19 +42,19 @@ void Chunk::set_distance(float distance) {
 
 void Chunk::set_block(int x, int y, int z, const Block &block) {
     int index = calculate_index(x, y, z);
-    if (index > m_blocks.size() || !coordinate_in_bounds(x, y, z)) {
+    if (index >= m_blocks->size() || !coordinate_in_bounds(x, y, z)) {
         return;
     }
 
-    if (m_blocks[index].type == BlockTypeID::AIR && block.type != BlockTypeID::AIR) {
+    if ((*m_blocks)[index].type == BlockTypeID::AIR && block.type != BlockTypeID::AIR) {
         m_num_blocks++;
     }
 
-    if (m_blocks[index].type != BlockTypeID::AIR && block.type == BlockTypeID::AIR) {
+    if ((*m_blocks)[index].type != BlockTypeID::AIR && block.type == BlockTypeID::AIR) {
         m_num_blocks--;
     }
 
-    m_blocks[index] = block;
+    (*m_blocks)[index] = block;
 }
 
 glm::vec3 Chunk::position() const {
@@ -73,6 +88,13 @@ bool Chunk::coordinate_in_bounds(int x, int y, int z) const {
 Chunk::State Chunk::get_state() const {
     return m_state;
 }
+
 void Chunk::set_state(Chunk::State state) {
     m_state = state;
+}
+
+void Chunk::destroy() {
+    if (m_blocks) {
+        delete m_blocks;
+    }
 }

@@ -45,6 +45,7 @@ void renderer::Renderer::render_chunk(const renderer::ChunkMesh &chunk_mesh, con
     m_block_shader.set_matrix("view", view_matrix);
     m_block_shader.set_matrix("projection", m_projection_matrix);
 
+    // auto model_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(chunk_mesh.position));
     auto model_matrix = glm::mat4(1.0f);
     m_block_shader.set_matrix("model", model_matrix);
 
@@ -68,7 +69,7 @@ void renderer::Renderer::render_chunk(const renderer::ChunkMesh &chunk_mesh, con
 }
 
 void renderer::Renderer::update_projection_matrix(int width, int height) {
-    m_projection_matrix = glm::perspective(glm::radians(120.0f),
+    m_projection_matrix = glm::perspective(glm::radians(75.0f),
                                            static_cast<float>(width) / static_cast<float>(height), 0.1f,
-                                           700.0f);
+                                           300.0f);
 }

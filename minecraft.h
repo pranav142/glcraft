@@ -11,12 +11,13 @@
 #include "renderer.h"
 #include "camera.h"
 #include "world.h"
+#include "timer.h"
 
 
 class Minecraft {
 public:
     Minecraft(int width = 800, int height = 600) : m_width(width), m_height(height) {
-        initialize();
+        TIME_FUNCTION(initialize(), "INITIALIZE WORLD");
     };
 
     bool initialize();
@@ -47,6 +48,8 @@ private:
     bool m_first_mouse = true;
     double m_last_X = 0;
     double m_last_Y = 0;
+
+    WorldGenerator m_world_generator = WorldGenerator(1);
 };
 
 
