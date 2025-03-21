@@ -18,6 +18,8 @@ void BlockRegistry::initialize() {
     create_water_block();
     create_gravel_block();
     create_snow_block();
+    create_wood_block();
+    create_leaf_block();
 }
 
 void BlockRegistry::create_grass_block() {
@@ -115,6 +117,38 @@ void BlockRegistry::create_snow_block() {
 
     BlockTextures textures{};
     textures.left = renderer::TextureManager::get_texture_coordinate(renderer::TextureType::SNOW);
+    textures.bottom = textures.left;
+    textures.top = textures.left;
+    textures.right = textures.left;
+    textures.front = textures.left;
+    textures.back = textures.right;
+
+    block.textures = textures;
+    block.is_transparent = false;
+}
+
+void BlockRegistry::create_wood_block() {
+    BlockType &block = m_blocks[static_cast<int>(BlockTypeID::WOOD)];
+
+    BlockTextures textures{};
+    textures.left = renderer::TextureManager::get_texture_coordinate(renderer::TextureType::WOOD_SIDE);
+    textures.right = textures.left;
+    textures.front = textures.left;
+    textures.back = textures.right;
+
+
+    textures.bottom = renderer::TextureManager::get_texture_coordinate(renderer::TextureType::WOOD_TOP);
+    textures.top = textures.bottom;
+
+    block.textures = textures;
+    block.is_transparent = false;
+}
+
+void BlockRegistry::create_leaf_block() {
+     BlockType &block = m_blocks[static_cast<int>(BlockTypeID::LEAVES)];
+
+    BlockTextures textures{};
+    textures.left = renderer::TextureManager::get_texture_coordinate(renderer::TextureType::LEAF);
     textures.bottom = textures.left;
     textures.top = textures.left;
     textures.right = textures.left;

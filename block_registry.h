@@ -33,6 +33,11 @@ private:
     static void create_gravel_block();
 
     static void create_snow_block();
+
+    static void create_wood_block();
+
+    static void create_leaf_block();
+
 private:
     static std::array<BlockType, static_cast<int>(BlockTypeID::COUNT)> m_blocks;
 };

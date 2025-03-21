@@ -19,6 +19,8 @@ enum class BlockTypeID : uint8_t {
     SNOW,
     EMPTY,
     AIR,
+    WOOD,
+    LEAVES,
     COUNT
 };
 
