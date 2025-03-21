@@ -37,7 +37,7 @@ bool Minecraft::initialize() {
         }
     });
 
-    // glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glfwSetCursorPosCallback(m_window, [](GLFWwindow *window, double xpos, double ypos) {
         if (auto instance = static_cast<Minecraft *>(glfwGetWindowUserPointer(window))) {
@@ -93,8 +93,8 @@ void Minecraft::run() {
 
         process_input();
 
-        TIME_FUNCTION(update(), "UPDATE");
-        TIME_FUNCTION(render(), "RENDER");
+        update();
+        render();
 
         glfwSwapBuffers(m_window);
         glfwPollEvents();
@@ -109,10 +109,10 @@ void Minecraft::render() {
 
     auto &chunks = m_world.get_chunks();
     int meshes_created = 0;
-    constexpr int MAX_MESHES_PER_FRAME = 5;
+    constexpr int MAX_MESHES_PER_FRAME = 2;
 
     int generated = 0;
-    constexpr int MAX_GENERATED_PER_FRAME = 100;
+    constexpr int MAX_GENERATED_PER_FRAME = 20;
 
     for (auto &chunk: chunks) {
         if (chunk.get_state() == Chunk::State::REGENERATE && generated < MAX_GENERATED_PER_FRAME) {

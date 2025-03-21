@@ -15,7 +15,7 @@ void World::initialize(const glm::vec3 &player_position) {
     update_chunks();
 }
 
-std::optional<std::reference_wrapper<const Chunk> > World::get_chunk(const glm::vec3 &position) const {
+std::optional<std::reference_wrapper<const Chunk>> World::get_chunk(const glm::vec3 &position) const {
     auto index = chunk_position_to_index(position);
     if (index == -1) {
         return std::nullopt;

@@ -17,17 +17,19 @@ void WorldGenerator::generate_chunk(Chunk &chunk) const {
             float nx = chunk.position().x + x;
             float nz = chunk.position().z + z;
 
-            float elevation = 0.6 * noise(1 * nx, 1 * nz)
-                              + 0.4 * noise(2 * nx, 2 * nz)
-                              + 0.2 * noise(4 * nx, 4 * nz);
+            float mountains = 0.95 * noise(0.75 * nx, 0.75 * nz) + 0.05 * noise(6 * nx, 6 * nz) + 0.3;
+            // 0 to 1.2
+            mountains = std::pow(mountains, 4) * 80;
 
-            elevation /= (0.6 + 0.4 + 0.2);
+            float valleys = noise(0.2 * nx, 0.2 * nz) * 100;
 
-            elevation = std::pow(elevation * 1.2, 1.5);
+            float elevation = mountains + valleys;
 
-            int height = elevation * 150 + 1;
+            // + 0.4 * noise(1 * nx, 1 * nz)
+            // + 0.2 * noise(1 * nx, 1 * nz);
+            int height = elevation + 1;
 
-            int water_level = 50;
+            int water_level = 60;
 
             float material_noise = noise(nx * 6.0, nz * 6.0) * 2 - 1;
             float patch_noise = noise(nx * 10.0, nz * 10.0) * 2;
