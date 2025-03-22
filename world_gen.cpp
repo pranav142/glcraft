@@ -25,8 +25,6 @@ void WorldGenerator::generate_chunk(Chunk &chunk) {
 
             float elevation = mountains + valleys;
 
-            // + 0.4 * noise(1 * nx, 1 * nz)
-            // + 0.2 * noise(1 * nx, 1 * nz);
             int height = elevation + 1;
 
             int water_level = 60;
@@ -47,7 +45,7 @@ void WorldGenerator::generate_chunk(Chunk &chunk) {
                         if (y == height) {
                             Block block = create_block(BlockTypeID::GRASS);
                             chunk.set_block(x, index, z, block);
-                            if (should_place_tree()) {
+                            if (should_place_tree(nx, nz)) {
                                 create_tree(chunk, x, index, z);
                             }
                         } else {
@@ -79,18 +77,19 @@ double WorldGenerator::noise(double nx, double nz) const {
     return m_noise.GetNoise(nx, nz) / 2.0 + 0.5;
 }
 
-bool WorldGenerator::should_place_tree() {
-    return m_tree_distribution(m_generator) > 995;
+// TODO: Tree Generation Should Be More Customizable Based on Biome
+bool WorldGenerator::should_place_tree(double nx, double nz) const {
+    double primary_noise = std::pow(noise(50 * nx, 50 * nz), 3);
+    constexpr double TREE_THRESHOLD = 0.65; // 1/1000 chance
+
+    return primary_noise > TREE_THRESHOLD;
 }
 
- void WorldGenerator::create_tree(Chunk &chunk, int x, int y, int z) {
+void WorldGenerator::create_tree(Chunk &chunk, int x, int y, int z) {
     Block block = create_block(BlockTypeID::WOOD);
     constexpr int TREE_HEIGHT = 4;
     for (int i = 1; i <= TREE_HEIGHT; i++) {
-        chunk.set_block(x, y + i, z, block);
-        chunk.set_block(x, y + i, z, block);
-        chunk.set_block(x, y + i, z, block);
-        chunk.set_block(x, y + i, z, block);
+        add_block(chunk, block, x, y + i, z);
     }
 
     block = create_block(BlockTypeID::LEAVES);
@@ -100,21 +99,36 @@ bool WorldGenerator::should_place_tree() {
                 if (dx == 0 && dz == 0) {
                     continue;
                 }
-                chunk.set_block(x + dx, y + TREE_HEIGHT + dy, z + dz, block);
+                add_block(chunk, block, x + dx, y + TREE_HEIGHT + dy, z + dz);
             }
         }
     }
 
     for (int dx = -1; dx <= 1; dx++) {
         for (int dz = -1; dz <= 1; dz++) {
-            chunk.set_block(x + dx, y + TREE_HEIGHT + 1, z + dz, block);
+            add_block(chunk, block, x + dx, y + TREE_HEIGHT + 1, z + dz);
         }
     }
 
 
-    chunk.set_block(x, y + TREE_HEIGHT + 2, z, block);
-    chunk.set_block(x, y + TREE_HEIGHT + 2, z + 1, block);
-    chunk.set_block(x, y + TREE_HEIGHT + 2, z - 1, block);
-    chunk.set_block(x + 1, y + TREE_HEIGHT + 2, z, block);
-    chunk.set_block(x - 1, y + TREE_HEIGHT + 2, z, block);
+    add_block(chunk, block, x, y + TREE_HEIGHT + 2, z);
+    add_block(chunk, block, x, y + TREE_HEIGHT + 2, z + 1);
+    add_block(chunk, block, x, y + TREE_HEIGHT + 2, z - 1);
+    add_block(chunk, block, x + 1, y + TREE_HEIGHT + 2, z);
+    add_block(chunk, block, x - 1, y + TREE_HEIGHT + 2, z);
+}
+
+// takes relative x, y, z to chunk if out of bounds stores in to be loaded
+void WorldGenerator::add_block(Chunk &chunk, Block block, int x, int y, int z) {
+    if (chunk.coordinate_in_bounds(x, y, z)) {
+        chunk.set_block(x, y, z, block);
+    }
+
+    UnloadedBlock unloaded_block{
+        .block = block,
+        .original_chunk_position = chunk.position(),
+        .global_position = chunk.position() + glm::vec3(x, y, z),
+    };
+
+    m_world.add_unloaded_block(unloaded_block);
 }

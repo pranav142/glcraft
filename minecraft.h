@@ -12,6 +12,7 @@
 #include "camera.h"
 #include "world.h"
 #include "timer.h"
+#include "world_gen.h"
 
 
 class Minecraft {
@@ -49,7 +50,7 @@ private:
     double m_last_X = 0;
     double m_last_Y = 0;
 
-    WorldGenerator m_world_generator = WorldGenerator(1);
+    WorldGenerator m_world_generator = WorldGenerator(1, m_world);
 };
 
 

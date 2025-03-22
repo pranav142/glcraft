@@ -8,6 +8,7 @@
 #include "iostream"
 #include "timer.h"
 #include <algorithm>
+#include <oneapi/tbb/detail/_utils.h>
 
 void World::initialize(const glm::vec3 &player_position) {
     glm::ivec3 player_chunk_pos = world_position_to_chunk_position(player_position);
@@ -15,7 +16,7 @@ void World::initialize(const glm::vec3 &player_position) {
     update_chunks();
 }
 
-std::optional<std::reference_wrapper<const Chunk>> World::get_chunk(const glm::vec3 &position) const {
+std::optional<std::reference_wrapper<const Chunk> > World::get_chunk(const glm::vec3 &position) const {
     auto index = chunk_position_to_index(position);
     if (index == -1) {
         return std::nullopt;
@@ -45,10 +46,16 @@ void World::update(const glm::vec3 &player_position) {
         m_player_chunk_position = player_chunk_pos;
         TIME_FUNCTION(update_chunks(), "UPDATE CHUNKS");
     }
+
+    process_unloaded_blocks();
 }
 
 std::array<Chunk, TOTAL_CHUNKS> &World::get_chunks() {
     return *m_new_chunks;
+}
+
+void World::add_unloaded_block(const UnloadedBlock &unloaded_block) {
+    m_unloaded_blocks.push_back(unloaded_block);
 }
 
 bool World::is_chunk_loaded(const glm::vec3 &chunk_position) const {
@@ -71,7 +78,7 @@ bool World::is_chunk_out_of_range(const glm::vec3 &chunk_position, const glm::ve
 
 void World::load_chunk(Chunk &chunk, const glm::vec3 &chunk_position) {
     chunk.set_position(chunk_position);
-    m_world_generator.generate_chunk(chunk);
+    // m_world_generator.generate_chunk(chunk);
     chunk.set_state(Chunk::State::REMESH);
 }
 
@@ -107,7 +114,7 @@ void World::update_chunks() {
     std::vector<Chunk *> available_chunks;
 
     for (int i = 0; i < TOTAL_CHUNKS; i++) {
-        Chunk& old_chunk = (*m_old_chunks)[i];
+        Chunk &old_chunk = (*m_old_chunks)[i];
 
         if (old_chunk.get_state() == Chunk::State::UNINITIALIZED) {
             available_chunks.push_back(&old_chunk);
@@ -156,4 +163,24 @@ void World::update_chunks() {
             }
         }
     }
+}
+
+void World::process_unloaded_blocks() {
+    auto it = std::ranges::remove_if(m_unloaded_blocks, [this](UnloadedBlock &unloaded_block) {
+        glm::vec3 chunk_position = world_position_to_chunk_position(unloaded_block.global_position);
+        int index = chunk_position_to_index(chunk_position);
+        if (index == -1) {
+            return false;
+        }
+        Chunk &chunk = (*m_new_chunks)[index];
+        if (chunk.get_state() == Chunk::State::READY || chunk.get_state() == Chunk::State::REMESH) {
+            glm::vec3 relative_position = unloaded_block.global_position - chunk_position;
+            chunk.set_block(relative_position.x, relative_position.y, relative_position.z, unloaded_block.block);
+            chunk.set_state(Chunk::State::REMESH);
+            return true;
+        }
+        return false;
+    }).begin();
+
+    m_unloaded_blocks.erase(it, m_unloaded_blocks.end());
 }

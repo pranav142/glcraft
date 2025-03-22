@@ -37,7 +37,7 @@ bool Minecraft::initialize() {
         }
     });
 
-    glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    // glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glfwSetCursorPosCallback(m_window, [](GLFWwindow *window, double xpos, double ypos) {
         if (auto instance = static_cast<Minecraft *>(glfwGetWindowUserPointer(window))) {
@@ -112,7 +112,7 @@ void Minecraft::render() {
     constexpr int MAX_MESHES_PER_FRAME = 2;
 
     int generated = 0;
-    constexpr int MAX_GENERATED_PER_FRAME = 20;
+    constexpr int MAX_GENERATED_PER_FRAME = 6;
 
     for (auto &chunk: chunks) {
         if (chunk.get_state() == Chunk::State::REGENERATE && generated < MAX_GENERATED_PER_FRAME) {
@@ -159,14 +159,14 @@ void Minecraft::render() {
             chunk.set_state(Chunk::State::READY);
         }
 
-        if (chunk.get_state() == Chunk::State::READY && chunk.get_mesh()) {
+        if (chunk.get_mesh()) {
             renderer::ChunkMesh *chunk_mesh = chunk.get_mesh();
             m_renderer.render_chunk(*chunk_mesh, view, false);
         }
     }
 
     for (auto &chunk: chunks) {
-        if (chunk.get_state() == Chunk::State::READY && chunk.get_mesh()) {
+        if (chunk.get_mesh()) {
             if (chunk.get_mesh()->transparent_mesh.num_indices > 0) {
                 renderer::ChunkMesh *chunk_mesh = chunk.get_mesh();
                 m_renderer.render_chunk(*chunk_mesh, view, true);

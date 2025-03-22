@@ -8,7 +8,12 @@
 #include <optional>
 
 #include "chunk.h"
-#include "world_gen.h"
+
+struct UnloadedBlock {
+    Block block;
+    glm::vec3 original_chunk_position;
+    glm::vec3 global_position;
+};
 
 // Hash function for glm::vec3
 namespace std {
@@ -25,7 +30,7 @@ namespace std {
 static constexpr int SIMULATION_RADIUS = 8;
 
 constexpr int TOTAL_CHUNKS = (2 * SIMULATION_RADIUS + 1) * (2 * SIMULATION_RADIUS + 1) * (
-                             2 * SIMULATION_RADIUS + 1);
+                                 2 * SIMULATION_RADIUS + 1);
 
 
 class World {
@@ -43,6 +48,8 @@ public:
 
     [[nodiscard]] std::array<Chunk, TOTAL_CHUNKS> &get_chunks();
 
+    void add_unloaded_block(const UnloadedBlock &unloaded_block);
+
 private:
     [[nodiscard]] bool is_chunk_loaded(const glm::vec3 &chunk_position) const;
 
@@ -55,13 +62,17 @@ private:
 
     void update_chunks();
 
+    void process_unloaded_blocks();
+
 private:
     std::array<Chunk, TOTAL_CHUNKS> *m_new_chunks = new std::array<Chunk, TOTAL_CHUNKS>;
+
+
     std::array<Chunk, TOTAL_CHUNKS> *m_old_chunks = new std::array<Chunk, TOTAL_CHUNKS>;
 
-    WorldGenerator m_world_generator = WorldGenerator(1000);
-
     glm::vec3 m_player_chunk_position = glm::vec3(0, 0, 0);
+
+    std::vector<UnloadedBlock> m_unloaded_blocks;
 };
 
 
