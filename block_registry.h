@@ -38,6 +38,8 @@ private:
 
     static void create_leaf_block();
 
+    static void create_grass_texture();
+
 private:
     static std::array<BlockType, static_cast<int>(BlockTypeID::COUNT)> m_blocks;
 };

@@ -24,18 +24,23 @@ renderer::ChunkMesh *renderer::create_chunk_mesh(const Chunk &chunk, const World
     transparent_vertex_buffer.reserve(40000);
     transparent_index_buffer.reserve(10000);
 
+    std::vector<float> texture_vertex_buffer;
+    std::vector<uint32_t> texture_index_buffer;
+
     fill_chunk_vertex_and_index_buffer(opaque_vertex_buffer, opaque_index_buffer, transparent_vertex_buffer,
-                                       transparent_index_buffer, chunk, world);
+                                       transparent_index_buffer, texture_vertex_buffer, texture_index_buffer, chunk,
+                                       world);
 
     auto chunk_mesh = new ChunkMesh();
     initialize_mesh(chunk_mesh->opaque_mesh, opaque_vertex_buffer, opaque_index_buffer);
     initialize_mesh(chunk_mesh->transparent_mesh, transparent_vertex_buffer, transparent_index_buffer);
+    initialize_mesh(chunk_mesh->texture_mesh, texture_vertex_buffer, texture_index_buffer);
     chunk_mesh->position = chunk.position();
     return chunk_mesh;
 }
 
-void renderer::initialize_mesh(Mesh& mesh, const std::vector<float> &vertex_buffer,
-                                      const std::vector<uint32_t> &index_buffer) {
+void renderer::initialize_mesh(Mesh &mesh, const std::vector<float> &vertex_buffer,
+                               const std::vector<uint32_t> &index_buffer) {
     if (vertex_buffer.empty() || index_buffer.empty()) {
         return;
     }
@@ -116,6 +121,40 @@ void renderer::add_face(std::vector<float> &vertex_buffer, std::vector<uint32_t>
     index_buffer.push_back(vertex_count);
 }
 
+void renderer::add_texture(std::vector<float> &vertex_buffer, std::vector<uint32_t> &index_buffer, Block block,
+                           glm::vec3 block_position) {
+    AtlasTextureCoordinates tex_coords = get_block_texture_coordinates(block, Direction::FRONT);
+
+
+    for (const auto &template_face: TEXTURE_TEMPLATES) {
+        int vertex_count = vertex_buffer.size() / 6;
+
+        for (int i = 0; i < 4; i++) {
+            // Position
+            vertex_buffer.push_back(block_position.x + template_face.vertices[i * 5]);
+            vertex_buffer.push_back(block_position.y + template_face.vertices[i * 5 + 1]);
+            vertex_buffer.push_back(block_position.z + template_face.vertices[i * 5 + 2]);
+
+            float u_factor = template_face.vertices[i * 5 + 3];
+            float v_factor = template_face.vertices[i * 5 + 4];
+
+            // Texture
+            vertex_buffer.push_back(tex_coords.min_u + u_factor * (tex_coords.max_u - tex_coords.min_u));
+            vertex_buffer.push_back(tex_coords.min_v + v_factor * (tex_coords.max_v - tex_coords.min_v));
+
+            // Brightnes
+            vertex_buffer.push_back(0.8);
+        }
+
+        index_buffer.push_back(vertex_count);
+        index_buffer.push_back(vertex_count + 1);
+        index_buffer.push_back(vertex_count + 2);
+        index_buffer.push_back(vertex_count + 2);
+        index_buffer.push_back(vertex_count + 3);
+        index_buffer.push_back(vertex_count);
+    }
+}
+
 bool renderer::should_add_face(const Block &adjacent_block, const Block &block) {
     // Don't add faces when facing un-rendered chunks
     if (adjacent_block.type == BlockTypeID::EMPTY) {
@@ -144,6 +183,8 @@ void renderer::fill_chunk_vertex_and_index_buffer(std::vector<float> &opaque_ver
                                                   std::vector<uint32_t> &opaque_index_buffer,
                                                   std::vector<float> &transparent_vertex_buffer,
                                                   std::vector<uint32_t> &transparent_index_buffer,
+                                                  std::vector<float> &texture_vertex_buffer,
+                                                  std::vector<uint32_t> &texture_index_buffer,
                                                   const Chunk &chunk,
                                                   const World &world) {
     // Checks Adjacent Blocks and only
@@ -157,12 +198,20 @@ void renderer::fill_chunk_vertex_and_index_buffer(std::vector<float> &opaque_ver
                     continue;
                 }
 
-                bool is_transparent = BlockRegistry::get_block(block.type).is_transparent;
-
-                std::vector<float> &vertex_buffer = is_transparent ? transparent_vertex_buffer : opaque_vertex_buffer;
-                std::vector<uint32_t> &index_buffer = is_transparent ? transparent_index_buffer : opaque_index_buffer;
-
                 glm::vec3 block_position = glm::vec3(i, j, k) + chunk.position();
+
+                if (block.type == BlockTypeID::GRASS_TEXTURE) {
+                    add_texture(texture_vertex_buffer, texture_index_buffer, block, block_position);
+                    continue;
+                }
+
+                std::vector<float> &vertex_buffer = block.type == BlockTypeID::WATER
+                                                        ? transparent_vertex_buffer
+                                                        : opaque_vertex_buffer;
+                std::vector<uint32_t> &index_buffer = block.type == BlockTypeID::WATER
+                                                          ? transparent_index_buffer
+                                                          : opaque_index_buffer;
+
                 auto top_block = renderer::get_block(i, j + 1, k, chunk, world);
                 if (should_add_face(top_block, block)) {
                     add_face(vertex_buffer, index_buffer, Direction::UP, block, block_position);

@@ -20,6 +20,7 @@ void BlockRegistry::initialize() {
     create_snow_block();
     create_wood_block();
     create_leaf_block();
+    create_grass_texture();
 }
 
 void BlockRegistry::create_grass_block() {
@@ -145,7 +146,7 @@ void BlockRegistry::create_wood_block() {
 }
 
 void BlockRegistry::create_leaf_block() {
-     BlockType &block = m_blocks[static_cast<int>(BlockTypeID::LEAVES)];
+    BlockType &block = m_blocks[static_cast<int>(BlockTypeID::LEAVES)];
 
     BlockTextures textures{};
     textures.left = renderer::TextureManager::get_texture_coordinate(renderer::TextureType::LEAF);
@@ -156,5 +157,20 @@ void BlockRegistry::create_leaf_block() {
     textures.back = textures.right;
 
     block.textures = textures;
-    block.is_transparent = false;
+    block.is_transparent = true;
+}
+
+void BlockRegistry::create_grass_texture() {
+    BlockType &block = m_blocks[static_cast<int>(BlockTypeID::GRASS_TEXTURE)];
+    BlockTextures textures{};
+
+    textures.left = renderer::TextureManager::get_texture_coordinate(renderer::TextureType::GRASS_TEXTURE);
+    textures.bottom = textures.left;
+    textures.top = textures.left;
+    textures.right = textures.left;
+    textures.front = textures.left;
+    textures.back = textures.right;
+
+    block.textures = textures;
+    block.is_transparent = true;
 }

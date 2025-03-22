@@ -21,6 +21,7 @@ enum class BlockTypeID : uint8_t {
     AIR,
     WOOD,
     LEAVES,
+    GRASS_TEXTURE,
     COUNT
 };
 

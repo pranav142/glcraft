@@ -21,6 +21,7 @@ namespace renderer {
     struct ChunkMesh {
         Mesh opaque_mesh;
         Mesh transparent_mesh;
+        Mesh texture_mesh;
         glm::vec3 position = glm::vec3(0, 0, 0);
     };
 
@@ -67,6 +68,22 @@ namespace renderer {
             -0.5f, 0.5f, 0.5f, 0.0f, 0.0f
         }
     };
+
+    static const FaceTemplate TEXTURE_TEMPLATES[2] = {
+        {
+            -0.4f, -0.5f, 0.4f, 0.0f, 1.0f,
+            0.4f, -0.5f, -0.4f, 1.0f, 1.0f,
+            0.4f, 0.5f, -0.4f, 1.0f, 0.0f,
+            -0.4f, 0.5f, 0.4f, 0.0f, 0.0f,
+        },
+        {
+            0.4f, -0.5f, 0.4f, 0.0f, 1.0f,
+            -0.4f, -0.5f, -0.4f, 1.0f, 1.0f,
+            -0.4f, 0.5f, -0.4f, 1.0f, 0.0f,
+            0.4f, 0.5f, 0.4f, 0.0f, 0.0f,
+        }
+    };
+
     constexpr int RENDER_RADIUS = 6;
 
     static Block empty_block = Block(BlockTypeID::EMPTY);
@@ -88,12 +105,17 @@ namespace renderer {
                          Direction direction,
                          Block block, glm::vec3 block_position);
 
-    void fill_chunk_vertex_and_index_buffer(std::vector<float> &opaque_vertex_buffer,
-                                            std::vector<uint32_t> &opaque_index_buffer,
-                                            std::vector<float> &transparent_vertex_buffer,
-                                            std::vector<uint32_t> &transparent_index_buffer,
-                                            const Chunk &chunk,
-                                            const World &world);
+    static void add_texture(std::vector<float> &vertex_buffer, std::vector<uint32_t> &index_buffer,
+                            Block block, glm::vec3 block_position);
+
+    static void fill_chunk_vertex_and_index_buffer(std::vector<float> &opaque_vertex_buffer,
+                                                   std::vector<uint32_t> &opaque_index_buffer,
+                                                   std::vector<float> &transparent_vertex_buffer,
+                                                   std::vector<uint32_t> &transparent_index_buffer,
+                                                   std::vector<float> &texture_vertex_buffer,
+                                                   std::vector<uint32_t> &texture_index_buffer,
+                                                   const Chunk &chunk,
+                                                   const World &world);
 
     static AtlasTextureCoordinates get_block_texture_coordinates(Block &block, Direction direction);
 

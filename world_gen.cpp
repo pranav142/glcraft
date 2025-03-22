@@ -47,6 +47,10 @@ void WorldGenerator::generate_chunk(Chunk &chunk) {
                             chunk.set_block(x, index, z, block);
                             if (should_place_tree(nx, nz)) {
                                 create_tree(chunk, x, index, z);
+                            } else if (should_add_grass_texture(nx, nz)) {
+                                // TODO: @Clarity rename from foliage
+                                Block foliage = create_block(BlockTypeID::GRASS_TEXTURE);
+                                add_block(chunk, foliage, x, index + 1, z);
                             }
                         } else {
                             Block block = create_block(BlockTypeID::DIRT);
@@ -83,6 +87,12 @@ bool WorldGenerator::should_place_tree(double nx, double nz) const {
     constexpr double TREE_THRESHOLD = 0.65; // 1/1000 chance
 
     return primary_noise > TREE_THRESHOLD;
+}
+
+bool WorldGenerator::should_add_grass_texture(double nx, double nz) const {
+    double grass_patch_noise = noise(5 * nx, 5 * nz);
+    constexpr double GRASS_PATCH_THRESHOLD = 0.6;
+    return grass_patch_noise > GRASS_PATCH_THRESHOLD;
 }
 
 void WorldGenerator::create_tree(Chunk &chunk, int x, int y, int z) {

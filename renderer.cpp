@@ -65,6 +65,11 @@ void renderer::Renderer::render_chunk(const renderer::ChunkMesh &chunk_mesh, con
     } else {
         glBindVertexArray(chunk_mesh.opaque_mesh.VAO);
         glDrawElements(GL_TRIANGLES, chunk_mesh.opaque_mesh.num_indices, GL_UNSIGNED_INT, 0);
+
+        glDisable(GL_CULL_FACE);
+        glBindVertexArray(chunk_mesh.texture_mesh.VAO);
+        glDrawElements(GL_TRIANGLES, chunk_mesh.texture_mesh.num_indices, GL_UNSIGNED_INT, 0);
+        glEnable(GL_CULL_FACE);
     }
 }
 
