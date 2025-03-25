@@ -51,6 +51,9 @@ void WorldGenerator::generate_chunk(Chunk &chunk) {
                                 // TODO: @Clarity rename from foliage
                                 Block foliage = create_block(BlockTypeID::GRASS_TEXTURE);
                                 add_block(chunk, foliage, x, index + 1, z);
+                            } else if (should_add_flower_texture(nx, nz)) {
+                                Block rose_flower = create_block(BlockTypeID::ROSE_TEXTURE);
+                                add_block(chunk, rose_flower, x, index + 1, z);
                             }
                         } else {
                             Block block = create_block(BlockTypeID::DIRT);
@@ -93,6 +96,13 @@ bool WorldGenerator::should_add_grass_texture(double nx, double nz) const {
     double grass_patch_noise = noise(5 * nx, 5 * nz);
     constexpr double GRASS_PATCH_THRESHOLD = 0.6;
     return grass_patch_noise > GRASS_PATCH_THRESHOLD;
+}
+
+bool WorldGenerator::should_add_flower_texture(double nx, double nz) const {
+    double grass_patch_noise = noise(10 * nx, 10 * nz);
+    constexpr double FLOWER_PATCH_THRESHOLD = 0.8;
+    return grass_patch_noise > FLOWER_PATCH_THRESHOLD;
+
 }
 
 void WorldGenerator::create_tree(Chunk &chunk, int x, int y, int z) {

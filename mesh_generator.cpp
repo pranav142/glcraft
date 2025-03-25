@@ -200,7 +200,7 @@ void renderer::fill_chunk_vertex_and_index_buffer(std::vector<float> &opaque_ver
 
                 glm::vec3 block_position = glm::vec3(i, j, k) + chunk.position();
 
-                if (block.type == BlockTypeID::GRASS_TEXTURE) {
+                if (BlockRegistry::get_block(block.type).is_sprite) {
                     add_texture(texture_vertex_buffer, texture_index_buffer, block, block_position);
                     continue;
                 }

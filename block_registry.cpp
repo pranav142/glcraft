@@ -21,6 +21,7 @@ void BlockRegistry::initialize() {
     create_wood_block();
     create_leaf_block();
     create_grass_texture();
+    create_rose_texture();
 }
 
 void BlockRegistry::create_grass_block() {
@@ -173,4 +174,21 @@ void BlockRegistry::create_grass_texture() {
 
     block.textures = textures;
     block.is_transparent = true;
+    block.is_sprite = true;
+}
+
+void BlockRegistry::create_rose_texture() {
+    BlockType &block = m_blocks[static_cast<int>(BlockTypeID::ROSE_TEXTURE)];
+    BlockTextures textures{};
+
+    textures.left = renderer::TextureManager::get_texture_coordinate(renderer::TextureType::ROSE_TEXTURE);
+    textures.bottom = textures.left;
+    textures.top = textures.left;
+    textures.right = textures.left;
+    textures.front = textures.left;
+    textures.back = textures.right;
+
+    block.textures = textures;
+    block.is_transparent = true;
+    block.is_sprite = true;
 }

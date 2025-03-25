@@ -22,6 +22,7 @@ enum class BlockTypeID : uint8_t {
     WOOD,
     LEAVES,
     GRASS_TEXTURE,
+    ROSE_TEXTURE,
     COUNT
 };
 
@@ -38,6 +39,7 @@ class BlockType {
 public:
     BlockTextures textures;
     bool is_transparent = false;
+    bool is_sprite = false;
 };
 
 Block create_block(BlockTypeID);

@@ -26,6 +26,8 @@ private:
 
     bool should_add_grass_texture(double nx, double nz) const;
 
+    bool should_add_flower_texture(double nx, double nz) const;
+
     void create_tree(Chunk &chunk, int x, int y, int z);
 
     void add_block(Chunk& chunk, Block block, int x, int y, int z);

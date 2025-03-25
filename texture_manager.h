@@ -21,6 +21,7 @@ namespace renderer {
         WOOD_TOP,
         LEAF,
         GRASS_TEXTURE,
+        ROSE_TEXTURE,
     };
 
     struct AtlasPosition {
@@ -43,7 +44,8 @@ namespace renderer {
         {2, 1},
         {3, 1},
         {6, 3},
-        {2, 3}
+        {2, 3},
+        {0, 3},
     };
 
     class TextureManager {

@@ -40,6 +40,7 @@ private:
 
     static void create_grass_texture();
 
+    static void create_rose_texture();
 private:
     static std::array<BlockType, static_cast<int>(BlockTypeID::COUNT)> m_blocks;
 };
