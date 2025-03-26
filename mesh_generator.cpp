@@ -84,6 +84,11 @@ void renderer::delete_chunk_mesh(ChunkMesh *mesh) {
     glDeleteBuffers(1, &mesh->transparent_mesh.VBO);
     glDeleteBuffers(1, &mesh->transparent_mesh.EBO);
 
+    glDeleteVertexArrays(1, &mesh->texture_mesh.VAO);
+    glDeleteBuffers(1, &mesh->texture_mesh.VBO);
+    glDeleteBuffers(1, &mesh->texture_mesh.EBO);
+
+
     delete mesh;
 }
 

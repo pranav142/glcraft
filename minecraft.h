@@ -25,6 +25,8 @@ public:
 
     void handle_mouse_move(double xpos, double ypos);
 
+    void handle_mouse_button(int button, int action, int mods);
+
     void resize(int width, int height);
 
     void run();

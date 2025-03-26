@@ -73,6 +73,10 @@ void renderer::Renderer::render_chunk(const renderer::ChunkMesh &chunk_mesh, con
     }
 }
 
+glm::mat4 renderer::Renderer::projection_matrix() const {
+    return m_projection_matrix;
+}
+
 void renderer::Renderer::update_projection_matrix(int width, int height) {
     m_projection_matrix = glm::perspective(glm::radians(75.0f),
                                            static_cast<float>(width) / static_cast<float>(height), 0.1f,

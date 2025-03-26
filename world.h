@@ -42,6 +42,10 @@ public:
 
     std::optional<std::reference_wrapper<const Chunk> > get_chunk(const glm::vec3 &position) const;
 
+    Block get_block(const glm::vec3 &position);
+
+    void set_block(const glm::vec3 &position, const Block &block);
+
     void set_chunk_state(Chunk::State state, const glm::vec3 &position);
 
     void update(const glm::vec3 &player_position);

@@ -29,6 +29,8 @@ public:
 
     [[nodiscard]] glm::vec3 position() const;
 
+    [[nodiscard]] glm::vec3 forward() const;
+
     void set_position(const glm::vec3 &position);
 
     [[nodiscard]] glm::mat4 view_matrix() const;

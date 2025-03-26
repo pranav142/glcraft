@@ -45,6 +45,12 @@ bool Minecraft::initialize() {
         }
     });
 
+    glfwSetMouseButtonCallback(m_window, [](GLFWwindow *window, int button, int action, int mods) {
+        if (auto instance = static_cast<Minecraft *>(glfwGetWindowUserPointer(window))) {
+            instance->handle_mouse_button(button, action, mods);
+        }
+    });
+
     BlockRegistry();
 
     m_renderer.initialize(m_width, m_height);
@@ -75,6 +81,32 @@ void Minecraft::handle_mouse_move(double xpos, double ypos) {
     yoffset *= sensitivity;
 
     m_camera.rotate(yoffset, xoffset);
+}
+
+void Minecraft::handle_mouse_button(int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        // cast ray
+        glm::vec3 ray = glm::normalize(m_camera.forward());
+        auto chunk_opt=m_world.get_chunk(world_position_to_chunk_position(m_camera.position()));
+        if (!chunk_opt.has_value()) {
+            return;
+        }
+
+        constexpr int MAX_DISTANCE = 5;
+        for (int t = 0; t < MAX_DISTANCE; t++) {
+            glm::ivec3 block_position = ray * static_cast<float>(t) + m_camera.position();
+            Block block = m_world.get_block(block_position);
+            std::cout << static_cast<int>(block.type) << std::endl;
+            if (block.type == BlockTypeID::EMPTY || block.type == BlockTypeID::AIR || block.type == BlockTypeID::WATER) {
+                continue;
+            }
+            // std::cout << "Broke block at " << block_position.x << " " << block_position.y << " " << block_position.z << std::endl;
+            m_world.set_block(block_position, create_block(BlockTypeID::AIR));
+            break;
+        }
+
+        // std::cout << "Clicked" << std::endl;
+    }
 }
 
 void Minecraft::resize(int width, int height) {

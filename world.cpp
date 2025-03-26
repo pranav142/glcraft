@@ -30,6 +30,87 @@ std::optional<std::reference_wrapper<const Chunk> > World::get_chunk(const glm::
     return (*m_new_chunks)[index];
 }
 
+Block World::get_block(const glm::vec3 &position) {
+    glm::vec3 chunk_position = world_position_to_chunk_position(position);
+    int index = chunk_position_to_index(chunk_position);
+    if (index == -1) {
+        return create_block(BlockTypeID::EMPTY);
+    }
+
+    glm::vec3 block_position = position - chunk_position;
+    return (*m_new_chunks)[index].get_block(block_position.x, block_position.y, block_position.z);
+}
+
+void World::set_block(const glm::vec3 &position, const Block &block) {
+    glm::vec3 chunk_position = world_position_to_chunk_position(position);
+    int index = chunk_position_to_index(chunk_position);
+    if (index == -1) {
+        return;
+    }
+
+    glm::vec3 block_position = position - chunk_position;
+
+    (*m_new_chunks)[index].set_block(block_position.x, block_position.y, block_position.z, block);
+    (*m_new_chunks)[index].set_state(Chunk::State::REMESH);
+
+    if (static_cast<int>(block_position.x) == 0) {
+        glm::vec3 neighbor_chunk = chunk_position - glm::vec3(CHUNK_WIDTH, 0, 0);
+        index = chunk_position_to_index(neighbor_chunk);
+        // std::cout << "Remeshing neighbor: " << neighbor_chunk.x << " " << neighbor_chunk.y << " " << neighbor_chunk.z << " " << std::endl;
+        if (index != -1) {
+            (*m_new_chunks)[index].set_state(Chunk::State::REMESH);
+        }
+    }
+
+    if (static_cast<int>(block_position.x) == CHUNK_WIDTH - 1) {
+        glm::vec3 neighbor_chunk = chunk_position + glm::vec3(CHUNK_WIDTH, 0, 0);
+        // std::cout << "Remeshing neighbor: " << neighbor_chunk.x << " " << neighbor_chunk.y << " " << neighbor_chunk.z << " " << std::endl;
+        index = chunk_position_to_index(neighbor_chunk);
+        if (index != -1) {
+            (*m_new_chunks)[index].set_state(Chunk::State::REMESH);
+        }
+    }
+
+    if (static_cast<int>(block_position.y) == CHUNK_HEIGHT - 1) {
+        glm::vec3 neighbor_chunk = chunk_position + glm::vec3(0, CHUNK_HEIGHT, 0);
+        // std::cout << "Remeshing neighbor: " << neighbor_chunk.x << " " << neighbor_chunk.y << " " << neighbor_chunk.z << " " << std::endl;
+        index = chunk_position_to_index(neighbor_chunk);
+        if (index != -1) {
+            (*m_new_chunks)[index].set_state(Chunk::State::REMESH);
+        }
+    }
+
+    if (static_cast<int>(block_position.y) == 0) {
+        glm::vec3 neighbor_chunk = chunk_position - glm::vec3(0, CHUNK_HEIGHT, 0);
+        // std::cout << "Remeshing neighbor: " << neighbor_chunk.x << " " << neighbor_chunk.y << " " << neighbor_chunk.z << " " << std::endl;
+        index = chunk_position_to_index(neighbor_chunk);
+        assert(index != -1);
+        if (index != -1) {
+            (*m_new_chunks)[index].set_state(Chunk::State::REMESH);
+        }
+    }
+
+    if (static_cast<int>(block_position.z) == 0) {
+        glm::vec3 neighbor_chunk = chunk_position - glm::vec3(0, 0, CHUNK_LENGTH);
+        // std::cout << "Remeshing neighbor: " << neighbor_chunk.x << " " << neighbor_chunk.y << " " << neighbor_chunk.z <<
+        //         " " << std::endl;
+        index = chunk_position_to_index(neighbor_chunk);
+        if (index != -1) {
+            (*m_new_chunks)[index].set_state(Chunk::State::REMESH);
+        }
+    }
+
+    if (static_cast<int>(block_position.z) == CHUNK_LENGTH - 1) {
+        glm::vec3 neighbor_chunk = chunk_position + glm::vec3(0, 0, CHUNK_LENGTH);
+        //std::cout << "Remeshing neighbor: " << neighbor_chunk.x << " " << neighbor_chunk.y << " " << neighbor_chunk.z <<
+        //        " " << std::endl;
+        index = chunk_position_to_index(neighbor_chunk);
+        if (index != -1) {
+            (*m_new_chunks)[index].set_state(Chunk::State::REMESH);
+        }
+    }
+}
+
 void World::set_chunk_state(Chunk::State state, const glm::vec3 &position) {
     int index = chunk_position_to_index(position);
     if (index == -1) {
