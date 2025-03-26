@@ -45,13 +45,13 @@ void WorldGenerator::generate_chunk(Chunk &chunk) {
                         if (y == height) {
                             Block block = create_block(BlockTypeID::GRASS);
                             chunk.set_block(x, index, z, block);
-                            if (should_place_tree(nx, nz)) {
+                            if (should_place_tree(nx, nz) && y > water_level) {
                                 create_tree(chunk, x, index, z);
-                            } else if (should_add_grass_texture(nx, nz)) {
+                            } else if (should_add_grass_texture(nx, nz) && y > water_level) {
                                 // TODO: @Clarity rename from foliage
                                 Block foliage = create_block(BlockTypeID::GRASS_TEXTURE);
                                 add_block(chunk, foliage, x, index + 1, z);
-                            } else if (should_add_flower_texture(nx, nz)) {
+                            } else if (should_add_flower_texture(nx, nz) && y >= water_level) {
                                 Block rose_flower = create_block(BlockTypeID::ROSE_TEXTURE);
                                 add_block(chunk, rose_flower, x, index + 1, z);
                             }
