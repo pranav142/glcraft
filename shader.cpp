@@ -54,6 +54,10 @@ void renderer::Shader::set_matrix(const std::string &name, const glm::mat4 &matr
     glUniformMatrix4fv(glGetUniformLocation(m_id, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
+void renderer::Shader::set_vec2(const std::string &name, const glm::vec2 &value) const {
+   glUniform2fv(glGetUniformLocation(m_id, name.c_str()), 1, glm::value_ptr(value));
+}
+
 std::optional<unsigned int> renderer::Shader::compile_vertex_shader(const std::string &vertex_path) {
     int success;
     char info_log[512];

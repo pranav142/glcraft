@@ -37,7 +37,7 @@ bool Minecraft::initialize() {
         }
     });
 
-    // glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glfwSetCursorPosCallback(m_window, [](GLFWwindow *window, double xpos, double ypos) {
         if (auto instance = static_cast<Minecraft *>(glfwGetWindowUserPointer(window))) {
@@ -51,10 +51,12 @@ bool Minecraft::initialize() {
         }
     });
 
+    glfwSwapInterval(1);
+
     BlockRegistry();
 
     m_renderer.initialize(m_width, m_height);
-    m_renderer.enable_culling();
+    // m_renderer.enable_culling();
     // m_renderer.enable_wireframe();
 
     m_camera.enable_flying();
@@ -87,7 +89,7 @@ void Minecraft::handle_mouse_button(int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         // cast ray
         glm::vec3 ray = glm::normalize(m_camera.forward());
-        auto chunk_opt=m_world.get_chunk(world_position_to_chunk_position(m_camera.position()));
+        auto chunk_opt = m_world.get_chunk(world_position_to_chunk_position(m_camera.position()));
         if (!chunk_opt.has_value()) {
             return;
         }
@@ -97,7 +99,8 @@ void Minecraft::handle_mouse_button(int button, int action, int mods) {
             glm::ivec3 block_position = ray * static_cast<float>(t) + m_camera.position();
             Block block = m_world.get_block(block_position);
             std::cout << static_cast<int>(block.type) << std::endl;
-            if (block.type == BlockTypeID::EMPTY || block.type == BlockTypeID::AIR || block.type == BlockTypeID::WATER) {
+            if (block.type == BlockTypeID::EMPTY || block.type == BlockTypeID::AIR || block.type ==
+                BlockTypeID::WATER) {
                 continue;
             }
             // std::cout << "Broke block at " << block_position.x << " " << block_position.y << " " << block_position.z << std::endl;
@@ -120,15 +123,15 @@ void Minecraft::run() {
     while (!glfwWindowShouldClose(m_window)) {
         float m_current_frame = glfwGetTime();
         m_delta_time = m_current_frame - m_last_frame;
-        std::cout << 1 / m_delta_time << std::endl;
+        // std::cout << 1 / m_delta_time << std::endl;
         m_last_frame = m_current_frame;
 
         process_input();
 
-        update();
-        render();
+        TIME_FUNCTION(update(), "UPDATE");
+        TIME_FUNCTION(render(), "RENDER");
 
-        glfwSwapBuffers(m_window);
+        TIME_FUNCTION(glfwSwapBuffers(m_window), "GLFW Swap Buffers");
         glfwPollEvents();
     }
 
@@ -205,6 +208,8 @@ void Minecraft::render() {
             }
         }
     }
+
+    m_renderer.render_ui(m_width, m_height);
 }
 
 void Minecraft::update() {

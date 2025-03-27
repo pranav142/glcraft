@@ -36,6 +36,8 @@ add_executable(minecraft
         world_gen.h
         libs/FastNoise/FastNoiseLite.h
         timer.h
+        crosshair.cpp
+        crosshair.h
 )
 
 target_link_libraries(minecraft PUBLIC glfw)

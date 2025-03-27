@@ -8,14 +8,16 @@
 
 void renderer::Renderer::initialize(int width, int height) {
     glViewport(0, 0, width, height);
-    update_projection_matrix(width, height);
+    update_matrices(width, height);
     m_block_shader.initialize("shaders/shader.vert", "shaders/shader.frag");
+    m_crosshair_shader.initialize("shaders/crosshair.vert", "shaders/crosshair.frag");
     m_texture_manager.initialize();
+    m_crosshair.initialize();
 }
 
 void renderer::Renderer::resize(int width, int height) {
     glViewport(0, 0, width, height);
-    update_projection_matrix(width, height);
+    update_matrices(width, height);
 }
 
 void renderer::Renderer::begin_frame() {
@@ -73,12 +75,42 @@ void renderer::Renderer::render_chunk(const renderer::ChunkMesh &chunk_mesh, con
     }
 }
 
+// setting these matrices isnt working
+void renderer::Renderer::render_ui(int width, int height) {
+    const Mesh &crosshair_mesh = m_crosshair.get_mesh();
+
+    m_crosshair_shader.use();
+
+    glm::mat4 view = glm::mat4(1.0f);
+    m_crosshair_shader.set_matrix("view", view);
+    m_crosshair_shader.set_matrix("projection", view);
+
+    glm::mat4 model = glm::mat4(1.0f);
+
+    // size in pixels
+    float size = 20.0f;
+    model = glm::scale(model, glm::vec3(size / width, size / height, 1.0f));
+
+    m_crosshair_shader.set_matrix("model", model);
+
+    glDisable(GL_DEPTH_TEST);
+
+    glBindVertexArray(crosshair_mesh.VAO);
+    glDrawElements(GL_TRIANGLES, crosshair_mesh.num_indices, GL_UNSIGNED_INT, 0);
+
+    glEnable(GL_DEPTH_TEST);
+}
+
+
 glm::mat4 renderer::Renderer::projection_matrix() const {
     return m_projection_matrix;
 }
 
-void renderer::Renderer::update_projection_matrix(int width, int height) {
+void renderer::Renderer::update_matrices(int width, int height) {
     m_projection_matrix = glm::perspective(glm::radians(75.0f),
                                            static_cast<float>(width) / static_cast<float>(height), 0.1f,
                                            300.0f);
+    m_ortho_matrix = glm::ortho(0.0f, static_cast<float>(width),
+                                static_cast<float>(height), 0.0f,
+                                -1.0f, 1.0f);
 }
