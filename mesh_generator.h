@@ -101,6 +101,8 @@ namespace renderer {
 
     void delete_chunk_mesh(ChunkMesh *mesh);
 
+    void delete_mesh(const Mesh &mesh);
+
     static void add_face(std::vector<float> &vertex_buffer, std::vector<uint32_t> &index_buffer,
                          Direction direction,
                          Block block, glm::vec3 block_position);

@@ -76,20 +76,17 @@ void renderer::initialize_mesh(Mesh &mesh, const std::vector<float> &vertex_buff
 
 
 void renderer::delete_chunk_mesh(ChunkMesh *mesh) {
-    glDeleteVertexArrays(1, &mesh->opaque_mesh.VAO);
-    glDeleteBuffers(1, &mesh->opaque_mesh.VBO);
-    glDeleteBuffers(1, &mesh->opaque_mesh.EBO);
-
-    glDeleteVertexArrays(1, &mesh->transparent_mesh.VAO);
-    glDeleteBuffers(1, &mesh->transparent_mesh.VBO);
-    glDeleteBuffers(1, &mesh->transparent_mesh.EBO);
-
-    glDeleteVertexArrays(1, &mesh->texture_mesh.VAO);
-    glDeleteBuffers(1, &mesh->texture_mesh.VBO);
-    glDeleteBuffers(1, &mesh->texture_mesh.EBO);
-
+    delete_mesh(mesh->opaque_mesh);
+    delete_mesh(mesh->transparent_mesh);
+    delete_mesh(mesh->texture_mesh);
 
     delete mesh;
+}
+
+void renderer::delete_mesh(const Mesh& mesh) {
+    glDeleteVertexArrays(1, &mesh.VAO);
+    glDeleteBuffers(1, &mesh.VBO);
+    glDeleteBuffers(1, &mesh.EBO);
 }
 
 void renderer::add_face(std::vector<float> &vertex_buffer, std::vector<uint32_t> &index_buffer, Direction direction,
