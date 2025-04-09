@@ -88,15 +88,18 @@ void Minecraft::handle_mouse_move(double xpos, double ypos) {
 void Minecraft::handle_mouse_button(int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         // cast ray
-        glm::vec3 ray = glm::normalize(m_camera.forward());
         auto chunk_opt = m_world.get_chunk(world_position_to_chunk_position(m_camera.position()));
         if (!chunk_opt.has_value()) {
             return;
         }
 
+       glm::vec3 ray = glm::normalize(m_camera.forward());
+       // glm::vec3 ray_origin = m_camera.position();
+       // glm::ivec3 blockPos = glm::ivec3(glm::floor(ray_origin));
         constexpr int MAX_DISTANCE = 5;
         for (int t = 0; t < MAX_DISTANCE; t++) {
-            glm::ivec3 block_position = ray * static_cast<float>(t) + m_camera.position();
+            glm::ivec3 block_position = glm::floor(ray * static_cast<float>(t) + m_camera.position());
+            std::cout << block_position.x << " " << block_position.y << " " << block_position.z << std::endl;
             Block block = m_world.get_block(block_position);
             std::cout << static_cast<int>(block.type) << std::endl;
             if (block.type == BlockTypeID::EMPTY || block.type == BlockTypeID::AIR || block.type ==
@@ -128,10 +131,14 @@ void Minecraft::run() {
 
         process_input();
 
-        TIME_FUNCTION(update(), "UPDATE");
-        TIME_FUNCTION(render(), "RENDER");
+       // TIME_FUNCTION(update(), "UPDATE");
+       // TIME_FUNCTION(render(), "RENDER");
+        update();
+        render();
 
-        TIME_FUNCTION(glfwSwapBuffers(m_window), "GLFW Swap Buffers");
+
+        // TIME_FUNCTION(glfwSwapBuffers(m_window), "GLFW Swap Buffers");
+        glfwSwapBuffers(m_window);
         glfwPollEvents();
     }
 
