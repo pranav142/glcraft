@@ -37,7 +37,7 @@ bool Minecraft::initialize() {
         }
     });
 
-    glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    // glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glfwSetCursorPosCallback(m_window, [](GLFWwindow *window, double xpos, double ypos) {
         if (auto instance = static_cast<Minecraft *>(glfwGetWindowUserPointer(window))) {
@@ -93,9 +93,9 @@ void Minecraft::handle_mouse_button(int button, int action, int mods) {
             return;
         }
 
-       glm::vec3 ray = glm::normalize(m_camera.forward());
-       // glm::vec3 ray_origin = m_camera.position();
-       // glm::ivec3 blockPos = glm::ivec3(glm::floor(ray_origin));
+        glm::vec3 ray = glm::normalize(m_camera.forward());
+        // glm::vec3 ray_origin = m_camera.position();
+        // glm::ivec3 blockPos = glm::ivec3(glm::floor(ray_origin));
         constexpr int MAX_DISTANCE = 5;
         for (int t = 0; t < MAX_DISTANCE; t++) {
             glm::ivec3 block_position = glm::floor(ray * static_cast<float>(t) + m_camera.position());
@@ -131,8 +131,8 @@ void Minecraft::run() {
 
         process_input();
 
-       // TIME_FUNCTION(update(), "UPDATE");
-       // TIME_FUNCTION(render(), "RENDER");
+        // TIME_FUNCTION(update(), "UPDATE");
+        // TIME_FUNCTION(render(), "RENDER");
         update();
         render();
 
